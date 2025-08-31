@@ -2,7 +2,7 @@
 import React from "react";
 import { InvoiceProvider } from "./context/InvoiceContext";
 import InvoiceForm from "./components/InvoiceForm";
-import InvoicePreview from "./components/InvoicePreview";
+import InvoicePreview from "./components/invoicepreview";
 import ExportPDF from "./components/exportpdf";
 
 function App() {
