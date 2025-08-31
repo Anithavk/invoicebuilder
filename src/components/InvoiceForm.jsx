@@ -21,7 +21,7 @@ const InvoiceForm = () => {
   };
 
   const addItem = () =>
-    setItems([...items, { description: "", quantity: 1, rate: 0 }]);
+    setItems([...items, { description: "", quantity: 0, rate: 0 }]);
   const removeItem = (idx) => setItems(items.filter((_, i) => i !== idx));
 
   const subtotal = items.reduce(

@@ -7,10 +7,29 @@ import { useInvoiceContext } from "../context/InvoiceContext";
 const ExportPDF = () => {
   const { clientInfo, invoiceInfo, items, subtotal, taxRate } =
     useInvoiceContext();
+  const isEmptyItem = (item) =>
+    item.description.trim() === "" || item.quantity === 0 || item.rate === 0;
+  const isEmptyClient = (item) =>
+    clientInfo.name.trim() === "" || clientInfo.address === "";
+  const isEmptyInvoice = (item) =>
+    invoiceInfo.number === "" || invoiceInfo.date === "";
 
   const handleExport = () => {
-    if (!items.length) return; // nothing to export
+    const validItems = items.filter((item) => !isEmptyItem(item));
+    const hasClient = !isEmptyClient(clientInfo);
+    const hasInvoice = !isEmptyInvoice(invoiceInfo);
 
+    console.log(
+      "Valid length:",
+      validItems.length,
+      hasClient,
+      hasInvoice,
+      invoiceInfo
+    );
+    if (validItems.length === 0 || hasClient == false || hasInvoice == false) {
+      alert("Please fill in all the client ,item and invoce fields before exporting to PDF.");
+      return;
+    }
     const doc = new jsPDF();
 
     doc.setFontSize(18);

@@ -7,11 +7,16 @@ export const useInvoiceContext = () => useContext(InvoiceContext);
 export const InvoiceProvider = ({ children }) => {
   const [clientInfo, setClientInfo] = useState({ name: "", address: "" });
   const [invoiceInfo, setInvoiceInfo] = useState({ number: "", date: "" });
-  const [items, setItems] = useState([{ description: "", quantity: 1, rate: 0 }]);
+  const [items, setItems] = useState([
+    { description: "", quantity: 0, rate: 0 },
+  ]);
   const [taxRate, setTaxRate] = useState(0.1);
 
   // Auto calculate subtotal
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.quantity * item.rate,
+    0
+  );
 
   // Persist to localStorage
   useEffect(() => {
@@ -20,7 +25,7 @@ export const InvoiceProvider = ({ children }) => {
       const parsed = JSON.parse(saved);
       setClientInfo(parsed.clientInfo || { name: "", address: "" });
       setInvoiceInfo(parsed.invoiceInfo || { number: "", date: "" });
-      setItems(parsed.items || [{ description: "", quantity: 1, rate: 0 }]);
+      setItems(parsed.items || [{ description: "", quantity: 0, rate: 0 }]);
       setTaxRate(parsed.taxRate ?? 0.1);
     }
   }, []);
