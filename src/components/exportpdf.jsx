@@ -26,8 +26,16 @@ const ExportPDF = () => {
       hasInvoice,
       invoiceInfo
     );
-    if (validItems.length === 0 || hasClient == false || hasInvoice == false) {
-      alert("Please fill in all the client ,item and invoce fields before exporting to PDF.");
+    if (!hasClient) {
+      alert("Please fill client information before exporting!");
+      return;
+    }
+    if (!hasInvoice) {
+      alert("Please fill invoice information before exporting!");
+      return;
+    }
+    if (validItems.length === 0) {
+      alert("Please add at least one item before exporting!");
       return;
     }
     const doc = new jsPDF();
