@@ -14,7 +14,13 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+@media (prefers-color-scheme: light) {
+    button {
+        background-color: #155dfc !important;
+        color: #fff !important;
+        margin: 10px !important;
+    }
+}
 a {
   font-weight: 500;
   color: #646cff;

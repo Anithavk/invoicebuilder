@@ -10,7 +10,7 @@ function App() {
       <div className="min-h-screen bg-gray-100 p-4 md:p-6">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
           {/* Left: Form */}
-          <div className="bg-white rounded-lg shadow flex flex-col h-full">
+          <div className="bg-white rounded-lg shadow flex flex-col h-full p-6">
             <div className="flex-1 overflow-y-auto">
               <InvoiceForm />
             </div>

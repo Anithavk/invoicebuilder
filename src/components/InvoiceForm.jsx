@@ -143,7 +143,7 @@ const InvoiceForm = () => {
                   <td className="border px-2 py-1 text-center">
                     <button
                       onClick={() => removeItem(idx)}
-                      className="bg-red-500 text-black px-2 py-1 rounded hover:bg-red-600"
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                     >
                       Remove
                     </button>
@@ -164,7 +164,7 @@ const InvoiceForm = () => {
 
       {/* Footer / Totals */}
       <footer className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between items-end gap-4">
-        <div className="border-t pt-4 mt-4">
+        <div className="pt-4 mt-4">
           <p className="font-semibold">Subtotal: {subtotal.toFixed(2)}</p>
           <p className="font-semibold">Tax (10%): {tax.toFixed(2)}</p>
           <p className="text-lg font-bold text-green-600">
