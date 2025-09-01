@@ -1,85 +1,94 @@
 import React from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-
 import { useInvoiceContext } from "../context/InvoiceContext";
 
 const ExportPDF = () => {
   const { clientInfo, invoiceInfo, items, subtotal, taxRate } =
     useInvoiceContext();
+
   const isEmptyItem = (item) =>
     item.description.trim() === "" || item.quantity === 0 || item.rate === 0;
-  const isEmptyClient = (item) =>
-    clientInfo.name.trim() === "" || clientInfo.address === "";
-  const isEmptyInvoice = (item) =>
-    invoiceInfo.number === "" || invoiceInfo.date === "";
 
   const handleExport = () => {
     const validItems = items.filter((item) => !isEmptyItem(item));
-    const hasClient = !isEmptyClient(clientInfo);
-    const hasInvoice = !isEmptyInvoice(invoiceInfo);
 
-    console.log(
-      "Valid length:",
-      validItems.length,
-      hasClient,
-      hasInvoice,
-      invoiceInfo
-    );
-    if (!hasClient) {
+    if (!clientInfo.name.trim() || !clientInfo.address.trim()) {
       alert("Please fill client information before exporting!");
       return;
     }
-    if (!hasInvoice) {
+    if (!invoiceInfo.number || !invoiceInfo.date) {
       alert("Please fill invoice information before exporting!");
       return;
     }
     if (validItems.length === 0) {
-      alert("Please add at least one item before exporting!");
+      alert("Please add at least one valid item before exporting!");
       return;
     }
+
     const doc = new jsPDF();
 
+    // Header
     doc.setFontSize(18);
     doc.text("Invoice", 14, 20);
 
+    // Client info
     doc.setFontSize(12);
-    doc.text(`Client: ${clientInfo?.name || ""}`, 14, 30);
-    doc.text(`${clientInfo?.address || ""}`, 14, 36);
+    doc.text(`Client: ${clientInfo?.name}`, 14, 30);
+    doc.text(`${clientInfo?.address}`, 14, 36);
 
-    doc.text(`Invoice #: ${invoiceInfo?.number || ""}`, 140, 30);
-    doc.text(`Date: ${invoiceInfo?.date || ""}`, 140, 36);
+    // Invoice info
+    doc.text(`Invoice #: ${invoiceInfo?.number}`, 140, 30);
+    doc.text(`Date: ${invoiceInfo?.date}`, 140, 36);
 
+    // Items table
     doc.autoTable({
       startY: 50,
       head: [["Description", "Qty", "Rate", "Amount"]],
-      body: items.map((item) => [
-        item.description || "",
-        item.quantity || 0,
-        item.rate?.toFixed(2) || "0.00",
-        ((item.quantity || 0) * (item.rate || 0)).toFixed(2),
+      body: validItems.map((item) => [
+        item.description,
+        item.quantity,
+        item.rate.toFixed(2),
+        (item.quantity * item.rate).toFixed(2),
       ]),
+      styles: { halign: "center" },
+      headStyles: { fillColor: [37, 99, 235] }, // Tailwind blue-600
     });
 
+    // Totals
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
     const finalY = doc.lastAutoTable.finalY + 10;
 
-    doc.text(`Subtotal: ${subtotal.toFixed(2)}`, 140, finalY);
-    doc.text(`Tax: ${tax.toFixed(2)}`, 140, finalY + 6);
-    doc.setFontSize(14);
-    doc.text(`Total: ${total.toFixed(2)}`, 140, finalY + 12);
+    doc.setFontSize(12);
+    doc.text(`Subtotal: ${subtotal.toFixed(2)}`, 200, finalY, {
+      align: "right",
+    });
+    doc.text(
+      `Tax (${(taxRate * 100).toFixed(0)}%): ${tax.toFixed(2)}`,
+      200,
+      finalY + 6,
+      { align: "right" }
+    );
 
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Total: ${total.toFixed(2)}`, 200, finalY + 14, {
+      align: "right",
+    });
+
+    // Save PDF
     doc.save("invoice.pdf");
   };
 
   return (
     <button
       onClick={handleExport}
-      className="bg-blue-600 text-black px-4 py-2 rounded mt-4"
+      className="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700 transition"
     >
       Export PDF
     </button>
   );
 };
+
 export default ExportPDF;

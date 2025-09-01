@@ -16,75 +16,67 @@ const InvoicePreview = () => {
   return (
     <div
       id="invoice"
-      className="bg-white p-6 rounded shadow border border-gray-300"
+      className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-gray-900"
     >
-      <h2 className="text-2xl font-bold mb-4">Invoice</h2>
+      <h1 className="text-2xl font-bold mb-6 text-blue-600">Invoice Preview</h1>
 
       {/* Client Info */}
-      <div className="mb-4">
-        <p>
-          <strong>Client:</strong> {clientInfo?.name || ""}
+      <div className="mb-6">
+        <p className="font-semibold">
+          Client: <span className="font-normal">{clientInfo?.name}</span>
         </p>
-        <p>{clientInfo?.address || ""}</p>
+        <p className="text-sm text-gray-700">{clientInfo?.address}</p>
       </div>
 
       {/* Invoice Info */}
-      <div className="mb-4">
+      <div className="mb-6">
         <p>
-          <strong>Invoice #:</strong> {invoiceInfo?.number || ""}
+          <strong>Invoice #:</strong> {invoiceInfo?.number}
         </p>
         <p>
-          <strong>Date:</strong> {invoiceInfo?.date || ""}
+          <strong>Date:</strong> {invoiceInfo?.date}
         </p>
       </div>
 
       {/* Items Table */}
-      <table className="w-full border-collapse border border-gray-300 mb-4">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2 text-left">
-              Description
-            </th>
-            <th className="border border-gray-300 px-3 py-2 text-center">
-              Qty
-            </th>
-            <th className="border border-gray-300 px-3 py-2 text-right">
-              Rate
-            </th>
-            <th className="border border-gray-300 px-3 py-2 text-right">
-              Amount
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, idx) => (
-            <tr key={idx}>
-              <td className="border border-gray-300 px-3 py-2">
-                {item.description}
-              </td>
-              <td className="border border-gray-300 px-3 py-2 text-center">
-                {item.quantity}
-              </td>
-              <td className="border border-gray-300 px-3 py-2 text-right">
-                {item.rate.toFixed(2)}
-              </td>
-              <td className="border border-gray-300 px-3 py-2 text-right">
-                {(item.quantity * item.rate).toFixed(2)}
-              </td>
+      <div className="overflow-x-auto mb-6">
+        <table className="w-full min-w-[500px] border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100 text-gray-800">
+              <th className="border px-3 py-2 text-left">Description</th>
+              <th className="border px-3 py-2 text-center">Qty</th>
+              <th className="border px-3 py-2 text-right">Rate</th>
+              <th className="border px-3 py-2 text-right">Amount</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((item, idx) => (
+              <tr key={idx} className="hover:bg-gray-50">
+                <td className="border px-3 py-2">{item.description}</td>
+                <td className="border px-3 py-2 text-center">
+                  {item.quantity}
+                </td>
+                <td className="border px-3 py-2 text-right">
+                  {item.rate.toFixed(2)}
+                </td>
+                <td className="border px-3 py-2 text-right">
+                  {(item.quantity * item.rate).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Totals */}
-      <div className="text-right">
+      <div className="text-right space-y-1">
         <p>
           <strong>Subtotal:</strong> {subtotal.toFixed(2)}
         </p>
         <p>
-          <strong>Tax:</strong> {tax.toFixed(2)}
+          <strong>Tax ({(taxRate * 100).toFixed(0)}%):</strong> {tax.toFixed(2)}
         </p>
-        <p className="text-xl font-bold">
+        <p className="text-xl font-bold text-green-600">
           <strong>Total:</strong> {total.toFixed(2)}
         </p>
       </div>

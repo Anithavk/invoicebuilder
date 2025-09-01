@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { InvoiceProvider } from "./context/InvoiceContext";
 import InvoiceForm from "./components/InvoiceForm";
@@ -8,11 +7,24 @@ import ExportPDF from "./components/exportpdf";
 function App() {
   return (
     <InvoiceProvider>
-      <div className="min-h-screen bg-gray-100 p-6">
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-          <InvoiceForm />
-          <InvoicePreview />
-          <ExportPDF />
+      <div className="min-h-screen bg-gray-100 p-4 md:p-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+          {/* Left: Form */}
+          <div className="bg-white rounded-lg shadow flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto">
+              <InvoiceForm />
+            </div>
+            {/* <div className="sticky bottom-0 bg-white border-t p-4">
+              <ExportPDF />
+            </div> */}
+          </div>
+
+          {/* Right: Preview */}
+          <div className="bg-white rounded-lg shadow flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto">
+              <InvoicePreview />
+            </div>
+          </div>
         </div>
       </div>
     </InvoiceProvider>

@@ -22,6 +22,7 @@ const InvoiceForm = () => {
 
   const addItem = () =>
     setItems([...items, { description: "", quantity: 0, rate: 0 }]);
+
   const removeItem = (idx) => setItems(items.filter((_, i) => i !== idx));
 
   const subtotal = items.reduce(
@@ -32,16 +33,16 @@ const InvoiceForm = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-[#f3f4f6] rounded-lg shadow-md">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <header className="mb-6 border-b pb-4">
-        <h1 className="text-3xl font-bold text-[#2563eb] mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-blue-600">
           Invoice Builder
         </h1>
       </header>
 
       {/* Body */}
-      <main>
+      <main className="flex-grow">
         {/* Client & Invoice Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
@@ -52,7 +53,7 @@ const InvoiceForm = () => {
               onChange={(e) =>
                 setClientInfo({ ...clientInfo, name: e.target.value })
               }
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
               placeholder="Client Name"
             />
             <label className="block font-semibold mb-1 mt-2">
@@ -64,7 +65,7 @@ const InvoiceForm = () => {
               onChange={(e) =>
                 setClientInfo({ ...clientInfo, address: e.target.value })
               }
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
               placeholder="Client Address"
             />
           </div>
@@ -76,7 +77,7 @@ const InvoiceForm = () => {
               onChange={(e) =>
                 setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
               }
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
             />
             <label className="block font-semibold mb-1 mt-2">
               Invoice Date
@@ -87,17 +88,17 @@ const InvoiceForm = () => {
               onChange={(e) =>
                 setInvoiceInfo({ ...invoiceInfo, date: e.target.value })
               }
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border px-3 py-2 rounded focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         {/* Items Table */}
-        <h2 className="text-xl font-bold mb-2 text-[#2563eb]">Items</h2>
+        <h2 className="text-xl font-bold mb-2 text-blue-600">Items</h2>
         <div className="overflow-x-auto mb-4">
-          <table className="w-full border-collapse border border-gray-300">
+          <table className="w-full min-w-[600px] border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-100 text-gray-800">
                 <th className="border px-2 py-1">Description</th>
                 <th className="border px-2 py-1">Qty</th>
                 <th className="border px-2 py-1">Rate</th>
@@ -107,7 +108,7 @@ const InvoiceForm = () => {
             </thead>
             <tbody>
               {items.map((item, idx) => (
-                <tr key={idx}>
+                <tr key={idx} className="hover:bg-gray-50">
                   <td className="border px-2 py-1">
                     <input
                       type="text"
@@ -142,7 +143,7 @@ const InvoiceForm = () => {
                   <td className="border px-2 py-1 text-center">
                     <button
                       onClick={() => removeItem(idx)}
-                      className="bg-red-500 text-black px-2 py-1 rounded"
+                      className="bg-red-500 text-black px-2 py-1 rounded hover:bg-red-600"
                     >
                       Remove
                     </button>
@@ -155,27 +156,22 @@ const InvoiceForm = () => {
 
         <button
           onClick={addItem}
-          className="bg-[#a69d9d] text-black px-4 py-2 rounded mb-4"
+          className="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700"
         >
           + Add Item
         </button>
       </main>
 
       {/* Footer / Totals */}
-      <footer className="border-t pt-4 flex flex-col md:flex-row justify-end gap-4">
-        <div className="space-y-1 text-right">
-          <p>
-            <strong>Subtotal:</strong> {subtotal.toFixed(2)}
+      <footer className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between items-end gap-4">
+        <div className="border-t pt-4 mt-4">
+          <p className="font-semibold">Subtotal: {subtotal.toFixed(2)}</p>
+          <p className="font-semibold">Tax (10%): {tax.toFixed(2)}</p>
+          <p className="text-lg font-bold text-green-600">
+            Total: {total.toFixed(2)}
           </p>
-          <p>
-            <strong>Tax ({(taxRate * 100).toFixed(0)}%):</strong>{" "}
-            {tax.toFixed(2)}
-          </p>
-          <p className="text-lg font-bold">
-            <strong>Total:</strong> {total.toFixed(2)}
-          </p>
+          <ExportPDF />
         </div>
-        <ExportPDF />
       </footer>
     </div>
   );
