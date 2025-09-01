@@ -25,7 +25,9 @@ const InvoicePreview = () => {
         <p className="font-semibold">
           Client: <span className="font-normal">{clientInfo?.name}</span>
         </p>
-        <p className="text-sm text-gray-700">{clientInfo?.address}</p>
+        <p className="text-sm text-align: left; text-gray-700">
+          {clientInfo?.address}
+        </p>
       </div>
 
       {/* Invoice Info */}

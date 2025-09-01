@@ -7,8 +7,8 @@ import ExportPDF from "./components/exportpdf";
 function App() {
   return (
     <InvoiceProvider>
-      <div className="min-h-screen bg-gray-100 p-4 md:p-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+      <div className="min-h-screen p-4 md:p-6 w-full">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left: Form */}
           <div className="bg-white rounded-lg shadow flex flex-col h-full p-6">
             <div className="flex-1 overflow-y-auto">
