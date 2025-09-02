@@ -18,8 +18,7 @@ const InvoicePreview = () => {
       id="invoice"
       className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-gray-900"
     >
-      <h1 className="text-2xl font-bold mb-6 text-blue-600">Invoice Preview</h1>
-
+      <h2 className="text-2xl font-bold text-blue-600 mb-4">Invoice Preview</h2>
       {/* Client Info */}
       <div className="mb-6">
         <p className="font-semibold">
