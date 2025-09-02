@@ -61,19 +61,21 @@ const ExportPDF = () => {
     const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(12);
-    doc.text(`Subtotal: ${subtotal.toFixed(2)}`, 200, finalY, {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+
+    doc.text(`Subtotal: ${subtotal.toFixed(2)}`, pageWidth - margin, finalY, {
       align: "right",
     });
     doc.text(
       `Tax (${(taxRate * 100).toFixed(0)}%): ${tax.toFixed(2)}`,
-      200,
+      pageWidth - margin,
       finalY + 6,
       { align: "right" }
     );
-
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text(`Total: ${total.toFixed(2)}`, 200, finalY + 14, {
+    doc.text(`Total: ${total.toFixed(2)}`, pageWidth - margin, finalY + 14, {
       align: "right",
     });
 
@@ -84,7 +86,7 @@ const ExportPDF = () => {
   return (
     <button
       onClick={handleExport}
-      className="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700 transition"
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
     >
       Export PDF
     </button>

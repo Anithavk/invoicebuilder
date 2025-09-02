@@ -10,7 +10,7 @@ function App() {
       <div className="min-h-screen p-4 md:p-6 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Form */}
-          <div className="bg-white rounded-lg shadow flex flex-col h-full p-6">
+          <div className="w-full overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <InvoiceForm />
             </div>
@@ -20,7 +20,7 @@ function App() {
           </div>
 
           {/* Right: Preview */}
-          <div className="bg-white rounded-lg shadow flex flex-col h-full">
+          <div className="w-full overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <InvoicePreview />
             </div>
