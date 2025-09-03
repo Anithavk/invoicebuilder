@@ -5,13 +5,7 @@
   padding: 1rem; /* optional padding for mobile */
 }
 
-@media (prefers-color-scheme: light) {
-    button {
-        color: #fff !important;
-        background-color: #155dfc !important;
-        margin: 10px 0 !important;
-    }
-}
+
 .logo {
   height: 6em;
   padding: 1.5em;

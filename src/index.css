@@ -21,6 +21,13 @@
         margin: 10px !important;
     }
 }
+@media (prefers-color-scheme: light) {
+    button {
+        color: #fff !important;
+        background-color: #155dfc !important;
+        margin: 10px 0 !important;
+    }
+}
 a {
   font-weight: 500;
   color: #646cff;
