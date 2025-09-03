@@ -1,4 +1,3 @@
-// src/components/InvoiceBuilder.jsx
 import React from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
 import ExportPDF from "./exportpdf";
@@ -31,9 +30,8 @@ const InvoiceBuilder = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col">
-      <div className="max-w-4xl w-full mx-auto flex flex-col flex-grow p-4 gap-6">
-        {/* Header */}
+    <div className="bg-gray-50 w-full min-h-full p-4">
+      <div className="w-full max-w-screen-lg mx-auto flex flex-col gap-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-700">
           Invoice Builder
         </h1>
@@ -85,7 +83,7 @@ const InvoiceBuilder = () => {
         </div>
 
         {/* Items List */}
-        <div className="flex-grow space-y-4">
+        <div className="space-y-4">
           {items.map((item, idx) => (
             <div
               key={idx}
@@ -150,9 +148,9 @@ const InvoiceBuilder = () => {
           ))}
         </div>
 
-        {/* Bottom Actions */}
-        <div className="bg-gray-100 border-t py-4 mt-4">
-          <div className="text-center mb-4">
+        {/* Bottom Actions (normal flow, scrolls naturally) */}
+        <div className="bg-gray-100 border-t py-4 mt-4 flex flex-col gap-4">
+          <div className="text-center">
             <button
               onClick={addItem}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
@@ -174,6 +172,7 @@ const InvoiceBuilder = () => {
               <span>Total:</span>
               <span>{total.toFixed(2)}</span>
             </div>
+
             <div className="text-center mt-2">
               <ExportPDF />
             </div>
