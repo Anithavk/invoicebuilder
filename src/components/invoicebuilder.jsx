@@ -30,7 +30,7 @@ const InvoiceBuilder = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen w-full p-4">
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
+      <div className="w-full flex flex-col p-4 gap-6">
         {/* Header */}
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-700">
           Invoice Builder
@@ -38,6 +38,7 @@ const InvoiceBuilder = () => {
 
         {/* Client & Invoice Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Client Info */}
           <div className="p-4 border rounded bg-white">
             <h2 className="font-semibold mb-2 text-lg">Client Information</h2>
             <input
@@ -58,6 +59,8 @@ const InvoiceBuilder = () => {
               className="w-full p-2 border rounded"
             />
           </div>
+
+          {/* Invoice Info */}
           <div className="p-4 border rounded bg-white">
             <h2 className="font-semibold mb-2 text-lg">Invoice Information</h2>
             <input

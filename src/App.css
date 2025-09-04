@@ -1,11 +1,8 @@
 #root {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0 auto;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+ width: 100%;        /* make it full width */
+  margin: 0;          /* no auto-centering */
+  padding: 0;         /* remove forced padding */
+  text-align: left;
 }
 
 
