@@ -17,11 +17,12 @@ const InvoiceBuilder = () => {
 
   const handleItemChange = (i, field, value) => {
     const newItems = [...items];
-    newItems[i][field] = field === 'description' ? value : Number(value) || 0;
+    newItems[i][field] = field === "description" ? value : Number(value) || 0;
     setItems(newItems);
   };
 
-  const addItem = () => setItems([...items, { description: "", quantity: 1, rate: 0 }]);
+  const addItem = () =>
+    setItems([...items, { description: "", quantity: 1, rate: 0 }]);
   const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
 
   const tax = subtotal * taxRate;
@@ -42,13 +43,17 @@ const InvoiceBuilder = () => {
             <input
               placeholder="Client Name"
               value={clientInfo.name}
-              onChange={e => setClientInfo({ ...clientInfo, name: e.target.value })}
+              onChange={(e) =>
+                setClientInfo({ ...clientInfo, name: e.target.value })
+              }
               className="w-full p-2 border rounded mb-2"
             />
             <textarea
               placeholder="Client Address"
               value={clientInfo.address}
-              onChange={e => setClientInfo({ ...clientInfo, address: e.target.value })}
+              onChange={(e) =>
+                setClientInfo({ ...clientInfo, address: e.target.value })
+              }
               rows={3}
               className="w-full p-2 border rounded"
             />
@@ -58,13 +63,17 @@ const InvoiceBuilder = () => {
             <input
               placeholder="Invoice Number"
               value={invoiceInfo.number}
-              onChange={e => setInvoiceInfo({ ...invoiceInfo, number: e.target.value })}
+              onChange={(e) =>
+                setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
+              }
               className="w-full p-2 border rounded mb-2"
             />
             <input
               type="date"
               value={invoiceInfo.date}
-              onChange={e => setInvoiceInfo({ ...invoiceInfo, date: e.target.value })}
+              onChange={(e) =>
+                setInvoiceInfo({ ...invoiceInfo, date: e.target.value })
+              }
               className="w-full p-2 border rounded"
             />
           </div>
@@ -73,12 +82,19 @@ const InvoiceBuilder = () => {
         {/* Items */}
         <div className="space-y-4">
           {items.map((it, idx) => (
-            <div key={idx} className="border rounded p-4 bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 items-end">
+            <div
+              key={idx}
+              className="border rounded p-4 bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 items-end"
+            >
               <div className="col-span-1 sm:col-span-2">
-                <label className="block text-sm text-gray-600 mb-1">Description</label>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Description
+                </label>
                 <input
                   value={it.description}
-                  onChange={e => handleItemChange(idx, 'description', e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(idx, "description", e.target.value)
+                  }
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -87,7 +103,9 @@ const InvoiceBuilder = () => {
                 <input
                   type="number"
                   value={it.quantity}
-                  onChange={e => handleItemChange(idx, 'quantity', e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(idx, "quantity", e.target.value)
+                  }
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -96,12 +114,16 @@ const InvoiceBuilder = () => {
                 <input
                   type="number"
                   value={it.rate}
-                  onChange={e => handleItemChange(idx, 'rate', e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(idx, "rate", e.target.value)
+                  }
                   className="w-full p-2 border rounded"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Amount</label>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Amount
+                </label>
                 <div className="font-medium p-2 border rounded bg-gray-50">
                   {(it.quantity * it.rate).toFixed(2)}
                 </div>
@@ -128,7 +150,7 @@ const InvoiceBuilder = () => {
               Add Item
             </button>
           </div>
-          <div className="text-right space-y-2">
+          <div className="text-right space-y-2 px-4">
             <div className="flex justify-end gap-4">
               <span>Subtotal:</span>
               <span>{subtotal.toFixed(2)}</span>

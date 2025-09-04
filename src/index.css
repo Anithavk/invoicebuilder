@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 :root {
+    width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -38,11 +45,12 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+
+    place-items: center;
+    min-width: inherit;
+    min-height: 100vh;
+    margin: 0;
+    display: inline;
 }
 
 h1 {
