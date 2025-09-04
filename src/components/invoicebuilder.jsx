@@ -23,14 +23,15 @@ const InvoiceBuilder = () => {
 
   const addItem = () =>
     setItems([...items, { description: "", quantity: 1, rate: 0 }]);
+
   const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
 
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
 
   return (
-    <div className="bg-gray-50 min-h-screen w-full p-4">
-      <div className="w-full flex flex-col p-4 gap-6">
+    <div className="bg-gray-50 min-h-screen w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
         {/* Header */}
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-700">
           Invoice Builder
@@ -38,8 +39,7 @@ const InvoiceBuilder = () => {
 
         {/* Client & Invoice Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Client Info */}
-          <div className="p-4 border rounded bg-white">
+          <div className="p-4 border rounded bg-white shadow-sm">
             <h2 className="font-semibold mb-2 text-lg">Client Information</h2>
             <input
               placeholder="Client Name"
@@ -60,8 +60,7 @@ const InvoiceBuilder = () => {
             />
           </div>
 
-          {/* Invoice Info */}
-          <div className="p-4 border rounded bg-white">
+          <div className="p-4 border rounded bg-white shadow-sm">
             <h2 className="font-semibold mb-2 text-lg">Invoice Information</h2>
             <input
               placeholder="Invoice Number"
@@ -87,7 +86,7 @@ const InvoiceBuilder = () => {
           {items.map((it, idx) => (
             <div
               key={idx}
-              className="border rounded p-4 bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 items-end"
+              className="border rounded p-4 bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 items-end shadow-sm"
             >
               <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm text-gray-600 mb-1">
@@ -101,6 +100,7 @@ const InvoiceBuilder = () => {
                   className="w-full p-2 border rounded"
                 />
               </div>
+
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Qty</label>
                 <input
@@ -112,6 +112,7 @@ const InvoiceBuilder = () => {
                   className="w-full p-2 border rounded"
                 />
               </div>
+
               <div>
                 <label className="block text-sm text-gray-600 mb-1">Rate</label>
                 <input
@@ -123,6 +124,7 @@ const InvoiceBuilder = () => {
                   className="w-full p-2 border rounded"
                 />
               </div>
+
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   Amount
@@ -131,6 +133,7 @@ const InvoiceBuilder = () => {
                   {(it.quantity * it.rate).toFixed(2)}
                 </div>
               </div>
+
               <div className="sm:col-span-5 flex justify-end">
                 <button
                   onClick={() => removeItem(idx)}
@@ -144,7 +147,7 @@ const InvoiceBuilder = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="bg-gray-100 border-t py-4 mt-4 flex flex-col gap-4">
+        <div className="bg-gray-100 border-t py-4 mt-4 flex flex-col gap-4 rounded shadow-inner">
           <div className="text-center">
             <button
               onClick={addItem}
@@ -153,7 +156,8 @@ const InvoiceBuilder = () => {
               Add Item
             </button>
           </div>
-          <div className="text-right space-y-2 px-4">
+
+          <div className="text-right space-y-2 px-2 sm:px-4">
             <div className="flex justify-end gap-4">
               <span>Subtotal:</span>
               <span>{subtotal.toFixed(2)}</span>
