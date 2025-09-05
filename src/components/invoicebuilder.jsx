@@ -30,7 +30,7 @@ const InvoiceBuilder = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="bg-gray-50 min-h-screen w-full flex flex-col">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <header className="sticky top-0 z-10 p-4 bg-gray-50 shadow-sm">
         <div className="w-full max-w-6xl mx-auto flex justify-between items-center">
