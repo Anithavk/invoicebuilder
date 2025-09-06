@@ -1,4 +1,3 @@
-// src/context/InvoiceContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const InvoiceContext = createContext();
@@ -12,13 +11,11 @@ export const InvoiceProvider = ({ children }) => {
   ]);
   const [taxRate, setTaxRate] = useState(0.1);
 
-  // Auto calculate subtotal
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.rate,
     0
   );
 
-  // Persist to localStorage
   useEffect(() => {
     const saved = localStorage.getItem("invoiceData");
     if (saved) {

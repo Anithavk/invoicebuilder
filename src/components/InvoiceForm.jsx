@@ -1,8 +1,7 @@
 import React from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
-import ExportPDF from "./exportpdf";
 
-const InvoiceForm = () => {
+export default function InvoiceForm() {
   const {
     clientInfo,
     setClientInfo,
@@ -11,173 +10,145 @@ const InvoiceForm = () => {
     items,
     setItems,
     taxRate,
+    setTaxRate,
   } = useInvoiceContext();
 
-  const updateItem = (idx, field, value) => {
-    const newItems = [...items];
-    newItems[idx][field] =
-      field === "quantity" || field === "rate" ? Number(value) : value;
-    setItems(newItems);
+  const handleItemChange = (i, field, val) => {
+    setItems((prev) => {
+      const next = [...prev];
+      next[i] = {
+        ...next[i],
+        [field]: field === "description" ? val : Number(val),
+      };
+      return next;
+    });
   };
 
-  const addItem = () =>
-    setItems([...items, { description: "", quantity: 0, rate: 0 }]);
-
-  const removeItem = (idx) => setItems(items.filter((_, i) => i !== idx));
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.rate,
-    0
-  );
-  const tax = subtotal * taxRate;
-  const total = subtotal + tax;
-
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <header className="mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-blue-600 mb-4">
-          Invoice Builder
-        </h2>
-      </header>
-
-      {/* Body */}
-      <div className="space-y-4 bg-white p-4 rounded-xl shadow">
-        <main className="flex-grow">
-          {/* Client & Invoice Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block font-semibold mb-1">Client Name</label>
-              <input
-                type="text"
-                value={clientInfo.name}
-                onChange={(e) =>
-                  setClientInfo({ ...clientInfo, name: e.target.value })
-                }
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Client Name"
-              />
-              <label className="block font-semibold mb-1 mt-2">
-                Client Address
-              </label>
-              <input
-                type="text"
-                value={clientInfo.address}
-                onChange={(e) =>
-                  setClientInfo({ ...clientInfo, address: e.target.value })
-                }
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Client Address"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Invoice #</label>
-              <input
-                type="text"
-                value={invoiceInfo.number}
-                onChange={(e) =>
-                  setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
-                }
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <label className="block font-semibold mb-1 mt-2">
-                Invoice Date
-              </label>
-              <input
-                type="date"
-                value={invoiceInfo.date}
-                onChange={(e) =>
-                  setInvoiceInfo({ ...invoiceInfo, date: e.target.value })
-                }
-                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <h2 className="text-xl font-bold mb-2 text-blue-600">Items</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100 text-gray-800">
-                  <th className="border px-2 py-1">Description</th>
-                  <th className="border px-2 py-1">Qty</th>
-                  <th className="border px-2 py-1">Rate</th>
-                  <th className="border px-2 py-1">Amount</th>
-                  <th className="border px-2 py-1">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="border px-2 py-1">
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) =>
-                          updateItem(idx, "description", e.target.value)
-                        }
-                        className="w-full border rounded px-1 py-1"
-                      />
-                    </td>
-                    <td className="border px-2 py-1">
-                      <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(idx, "quantity", e.target.value)
-                        }
-                        className="w-full border rounded px-1 py-1"
-                      />
-                    </td>
-                    <td className="border px-2 py-1">
-                      <input
-                        type="number"
-                        value={item.rate}
-                        onChange={(e) =>
-                          updateItem(idx, "rate", e.target.value)
-                        }
-                        className="w-full border rounded px-1 py-1"
-                      />
-                    </td>
-                    <td className="border px-2 py-1 text-right">
-                      {(item.quantity * item.rate).toFixed(2)}
-                    </td>
-                    <td className="border px-2 py-1 text-center">
-                      <button
-                        onClick={() => removeItem(idx)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <button
-            onClick={addItem}
-            className="bg-blue-600 text-black px-4 py-2 rounded hover:bg-blue-700"
-          >
-            + Add Item
-          </button>
-        </main>
-      </div>
-      {/* Footer / Totals */}
-      <footer className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between items-end gap-4">
-        <div className="pt-4 mt-4">
-          <p className="font-semibold">Subtotal: {subtotal.toFixed(2)}</p>
-          <p className="font-semibold">Tax (10%): {tax.toFixed(2)}</p>
-          <p className="text-lg font-bold text-green-600">
-            Total: {total.toFixed(2)}
-          </p>
-          <ExportPDF />
+    <div className="space-y-6">
+      <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        Client Info
+      </h2>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Name
+          </label>
+          <input
+            value={clientInfo.name}
+            onChange={(e) =>
+              setClientInfo({ ...clientInfo, name: e.target.value })
+            }
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+          />
         </div>
-      </footer>
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Address
+          </label>
+          <input
+            value={clientInfo.address}
+            onChange={(e) =>
+              setClientInfo({ ...clientInfo, address: e.target.value })
+            }
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+      </div>
+
+      <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        Invoice Info
+      </h2>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Invoice Number
+          </label>
+          <input
+            value={invoiceInfo.number}
+            onChange={(e) =>
+              setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
+            }
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Date
+          </label>
+          <input
+            type="date"
+            value={invoiceInfo.date}
+            onChange={(e) =>
+              setInvoiceInfo({ ...invoiceInfo, date: e.target.value })
+            }
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+      </div>
+
+      <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+        Items
+      </h2>
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <div key={i} className="grid grid-cols-5 gap-2 items-center">
+            <input
+              placeholder="Description"
+              value={item.description}
+              onChange={(e) =>
+                handleItemChange(i, "description", e.target.value)
+              }
+              className="col-span-2 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full dark:bg-gray-700 dark:text-white"
+            />
+            <input
+              type="number"
+              placeholder="Qty"
+              value={item.quantity}
+              onChange={(e) => handleItemChange(i, "quantity", e.target.value)}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2"
+            />
+            <input
+              type="number"
+              placeholder="Rate"
+              value={item.rate}
+              onChange={(e) => handleItemChange(i, "rate", e.target.value)}
+              className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2"
+            />
+            <button
+              type="button"
+              onClick={() => setItems(items.filter((_, index) => index !== i))}
+              className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+            >
+              -
+            </button>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() =>
+            setItems([...items, { description: "", quantity: 0, rate: 0 }])
+          }
+          className="w-full py-2 mt-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+        >
+          + Add Item
+        </button>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Tax Rate (%)
+          </label>
+          <input
+            type="number"
+            value={taxRate}
+            onChange={(e) => setTaxRate(Number(e.target.value))}
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 w-full dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default InvoiceForm;
+}
