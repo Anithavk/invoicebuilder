@@ -30,23 +30,23 @@ const InvoiceBuilder = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col bg-gray-100">
+
       {/* Header */}
-      <header className="sticky top-0 z-10 p-4 bg-gray-50 shadow-sm">
-        <div className="w-full max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 text-center w-full">
-            Invoice Builder
-          </h1>
-        </div>
+      <header className="sticky top-0 z-20 bg-gray-100 shadow-sm p-4 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-700">
+          Invoice Builder
+        </h1>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto py-6">
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
+      {/* MAIN SCROLL AREA */}
+      <main className="flex-1">
+
+        <div className="flex flex-col gap-6">
+
           {/* Client & Invoice Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Client Info */}
-            <div className="p-4 border rounded bg-white shadow-sm">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 p-4 border rounded bg-white shadow-sm">
               <h2 className="font-semibold mb-2 text-lg">Client Information</h2>
               <input
                 placeholder="Client Name"
@@ -54,7 +54,7 @@ const InvoiceBuilder = () => {
                 onChange={(e) =>
                   setClientInfo({ ...clientInfo, name: e.target.value })
                 }
-                className="w-full p-2 border rounded mb-2"
+                className="w-full p-2 border rounded mb-3"
               />
               <textarea
                 placeholder="Client Address"
@@ -67,18 +67,15 @@ const InvoiceBuilder = () => {
               />
             </div>
 
-            {/* Invoice Info */}
-            <div className="p-4 border rounded bg-white shadow-sm">
-              <h2 className="font-semibold mb-2 text-lg">
-                Invoice Information
-              </h2>
+            <div className="flex-1 p-4 border rounded bg-white shadow-sm">
+              <h2 className="font-semibold mb-2 text-lg">Invoice Information</h2>
               <input
                 placeholder="Invoice Number"
                 value={invoiceInfo.number}
                 onChange={(e) =>
                   setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
                 }
-                className="w-full p-2 border rounded mb-2"
+                className="w-full p-2 border rounded mb-3"
               />
               <input
                 type="date"
@@ -92,108 +89,106 @@ const InvoiceBuilder = () => {
           </div>
 
           {/* Items */}
-          <div className="space-y-4">
-            {items.map((it, idx) => (
-              <div
-                key={idx}
-                className="border rounded p-4 bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 items-end shadow-sm"
-              >
-                <div className="col-span-1 sm:col-span-2">
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Description
-                  </label>
-                  <input
-                    value={it.description}
-                    onChange={(e) =>
-                      handleItemChange(idx, "description", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
+          <div className="w-full overflow-x-auto">
+            <div className="flex flex-col gap-4 min-w-0">
 
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Qty
-                  </label>
-                  <input
-                    type="number"
-                    value={it.quantity}
-                    onChange={(e) =>
-                      handleItemChange(idx, "quantity", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
+              {items.map((it, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-wrap gap-3 p-4 border rounded bg-white shadow-sm"
+                >
+                  <div className="flex-1 min-w-[150px]">
+                    <label className="block text-sm text-gray-600 mb-1">
+                      Description
+                    </label>
+                    <input
+                      value={it.description}
+                      onChange={(e) =>
+                        handleItemChange(idx, "description", e.target.value)
+                      }
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Rate
-                  </label>
-                  <input
-                    type="number"
-                    value={it.rate}
-                    onChange={(e) =>
-                      handleItemChange(idx, "rate", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
+                  <div className="w-[90px]">
+                    <label className="block text-sm text-gray-600 mb-1">Qty</label>
+                    <input
+                      type="number"
+                      value={it.quantity}
+                      onChange={(e) =>
+                        handleItemChange(idx, "quantity", e.target.value)
+                      }
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">
-                    Amount
-                  </label>
-                  <div className="font-medium p-2 border rounded bg-gray-50">
-                    {(it.quantity * it.rate).toFixed(2)}
+                  <div className="w-[110px]">
+                    <label className="block text-sm text-gray-600 mb-1">Rate</label>
+                    <input
+                      type="number"
+                      value={it.rate}
+                      onChange={(e) =>
+                        handleItemChange(idx, "rate", e.target.value)
+                      }
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+
+                  <div className="w-[110px]">
+                    <label className="block text-sm text-gray-600 mb-1">Amount</label>
+                    <div className="p-2 border rounded bg-gray-50 font-medium">
+                      {(it.quantity * it.rate).toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex justify-end min-w-[100px] mt-2">
+                    <button
+                      onClick={() => removeItem(idx)}
+                      className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-
-                <div className="sm:col-span-5 flex justify-end">
-                  <button
-                    onClick={() => removeItem(idx)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Add Item */}
           <div className="text-center">
             <button
               onClick={addItem}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full sm:w-auto"
             >
               Add Item
             </button>
           </div>
+
         </div>
       </main>
 
-      {/* Footer (Sticky Totals) */}
-      <footer className="sticky bottom-0 z-10 bg-gray-100 shadow-inner">
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-4">
-          <div className="text-right space-y-2">
-            <div className="flex justify-end gap-4">
-              <span>Subtotal:</span>
-              <span>{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-end gap-4">
-              <span>Tax ({(taxRate * 100).toFixed(0)}%):</span>
-              <span>{tax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-end gap-4 font-bold text-lg">
-              <span>Total:</span>
-              <span>{total.toFixed(2)}</span>
-            </div>
+      {/* FIXED FOOTER (SAFE) */}
+       <footer className="w-full bg-blue-900 text-white py-4 text-center">
+        <div className="flex flex-col items-end gap-1 text-right text-sm sm:text-base">
+          <div className="flex justify-end gap-4">
+            <span>Subtotal:</span>
+            <span>{subtotal.toFixed(2)}</span>
           </div>
-          <div className="text-center">
-            <ExportPDF />
+          <div className="flex justify-end gap-4">
+            <span>Tax ({(taxRate * 100).toFixed(0)}%):</span>
+            <span>{tax.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-end gap-4 font-bold text-lg">
+            <span>Total:</span>
+            <span>{total.toFixed(2)}</span>
           </div>
         </div>
+
+        <div className="text-center">
+          <ExportPDF />
+        </div>
       </footer>
+
     </div>
   );
 };
