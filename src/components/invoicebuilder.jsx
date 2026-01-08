@@ -198,7 +198,9 @@ const InvoiceBuilder = () => {
         </div>
 
         {/* INVOICE PREVIEW — FULL WIDTH */}
-        <InvoicePreview />
+        <div className="md:col-span-2">
+  <InvoicePreview />
+</div>
 
         {/* EXPORT */}
         <div className="flex justify-end">
