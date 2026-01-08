@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
-/* Brand Variables */
+/* =========================
+   Brand Variables
+========================= */
 :root {
   --brand-color: #4f46e5;
 }
 
-/* Base Body Styling */
+/* =========================
+   Base Body Styling
+========================= */
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: #f9fafb;
@@ -13,16 +17,84 @@ body {
   margin: 0;
 }
 
-/* Ensure App Fills Full Height on All Devices */
-html, body, #root {
+/* Ensure App Fills Full Height */
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
 }
 
-/* Footer Default Styling (if used outside Tailwind components) */
+/* =========================
+   Footer Styling (optional)
+========================= */
 footer {
   background: #1f2937;
   color: white;
   padding: 16px;
   text-align: center;
 }
+
+/* =========================
+   Invoice & PDF Print Styles
+========================= */
+@media print {
+
+  /* Remove background for clean PDF */
+  body {
+    background: white;
+  }
+
+  /* Hide UI-only elements */
+  header,
+  footer,
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Invoice container A4 sizing */
+  .invoice-container {
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 16mm;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Table improvements */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #111827;
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  /* Avoid page breaks inside rows */
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Inputs look like text in PDF */
+  input,
+  textarea {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
+@media print {
+  .invoice-container {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+  }
+}
+

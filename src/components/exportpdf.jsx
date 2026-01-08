@@ -4,11 +4,12 @@ import "jspdf-autotable";
 import { useInvoiceContext } from "../context/InvoiceContext";
 
 const ExportPDF = () => {
-  const { clientInfo, invoiceInfo, items, subtotal, taxRate } =
-    useInvoiceContext();
+  const { clientInfo, invoiceInfo, items, taxRate } = useInvoiceContext();
 
   const isEmptyItem = (item) =>
-    item.description.trim() === "" || item.quantity === 0 || item.rate === 0;
+    item.description.trim() === "" ||
+    item.quantity <= 0 ||
+    item.rate <= 0;
 
   const handleExport = () => {
     const validItems = items.filter((item) => !isEmptyItem(item));
@@ -17,16 +18,28 @@ const ExportPDF = () => {
       alert("Please fill client information before exporting!");
       return;
     }
+
     if (!invoiceInfo.number || !invoiceInfo.date) {
       alert("Please fill invoice information before exporting!");
       return;
     }
+
     if (validItems.length === 0) {
       alert("Please add at least one valid item before exporting!");
       return;
     }
 
-    const doc = new jsPDF();
+    // ✅ FIX 1: Recalculate subtotal
+    const subtotal = validItems.reduce(
+      (sum, item) => sum + item.quantity * item.rate,
+      0
+    );
+
+    // ✅ FIX 2: Correct tax calculation
+    const tax = (subtotal * taxRate) / 100;
+    const total = subtotal + tax;
+
+    const doc = new jsPDF("p", "mm", "a4");
 
     // Header
     doc.setFontSize(18);
@@ -34,12 +47,12 @@ const ExportPDF = () => {
 
     // Client info
     doc.setFontSize(12);
-    doc.text(`Client: ${clientInfo?.name}`, 14, 30);
-    doc.text(`${clientInfo?.address}`, 14, 36);
+    doc.text(`Client: ${clientInfo.name}`, 14, 30);
+    doc.text(clientInfo.address, 14, 36);
 
     // Invoice info
-    doc.text(`Invoice #: ${invoiceInfo?.number}`, 140, 30);
-    doc.text(`Date: ${invoiceInfo?.date}`, 140, 36);
+    doc.text(`Invoice #: ${invoiceInfo.number}`, 140, 30);
+    doc.text(`Date: ${invoiceInfo.date}`, 140, 36);
 
     // Items table
     doc.autoTable({
@@ -47,39 +60,43 @@ const ExportPDF = () => {
       head: [["Description", "Qty", "Rate", "Amount"]],
       body: validItems.map((item) => [
         item.description,
-        item.quantity,
-        item.rate.toFixed(2),
-        (item.quantity * item.rate).toFixed(2),
+        item.quantity.toString(),
+        `$${item.rate.toFixed(2)}`,
+        `$${(item.quantity * item.rate).toFixed(2)}`,
       ]),
       styles: { halign: "center" },
-      headStyles: { fillColor: [37, 99, 235] }, // Tailwind blue-600
+      headStyles: { fillColor: [37, 99, 235] },
+      columnStyles: {
+        0: { halign: "left" },
+      },
     });
 
     // Totals
-    const tax = subtotal * taxRate;
-    const total = subtotal + tax;
     const finalY = doc.lastAutoTable.finalY + 10;
-
-    doc.setFontSize(12);
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 14;
 
-    doc.text(`Subtotal: ${subtotal.toFixed(2)}`, pageWidth - margin, finalY, {
+    doc.setFontSize(12);
+    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, pageWidth - margin, finalY, {
       align: "right",
     });
+
     doc.text(
-      `Tax (${(taxRate * 100).toFixed(0)}%): ${tax.toFixed(2)}`,
+      `Tax (${taxRate}%): $${tax.toFixed(2)}`,
       pageWidth - margin,
       finalY + 6,
       { align: "right" }
     );
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Total: ${total.toFixed(2)}`, pageWidth - margin, finalY + 14, {
-      align: "right",
-    });
 
-    // Save PDF
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(
+      `Total: $${total.toFixed(2)}`,
+      pageWidth - margin,
+      finalY + 14,
+      { align: "right" }
+    );
+
     doc.save("invoice.pdf");
   };
 
