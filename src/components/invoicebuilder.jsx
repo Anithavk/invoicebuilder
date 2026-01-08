@@ -1,7 +1,7 @@
 import React from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
 import ExportPDF from "./exportpdf";
-import InvoicePreview from "./InvoicePreview";
+import InvoicePreview from "./invoicepreview.jsx";
 
 const InvoiceBuilder = () => {
   const {
