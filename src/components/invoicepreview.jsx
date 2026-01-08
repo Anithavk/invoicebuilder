@@ -9,20 +9,15 @@ const currency = (n) =>
   });
 
 export default function InvoicePreview() {
-  const { clientInfo, invoiceInfo, items, taxRate, subtotal } =
-    useInvoiceContext();
-
+  const { clientInfo, items, taxRate, subtotal } = useInvoiceContext();
   const ref = useRef(null);
 
-  /* -----------------------------
-     FIXED CALCULATIONS
-     taxRate is %
-  ------------------------------*/
+  // Correct tax calculation
   const tax = +(subtotal * (taxRate / 100)).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 bg-gray-100 min-h-screen">
 
       {/* INVOICE PREVIEW */}
       <div
@@ -35,7 +30,7 @@ export default function InvoicePreview() {
           shadow-md
           mx-auto
           w-full
-          max-w-[210mm]
+          max-w-[800px]
         "
       >
         <h2 className="text-xl font-bold mb-6 text-gray-800">
@@ -73,12 +68,8 @@ export default function InvoicePreview() {
                 <tr key={i}>
                   <td className="p-2 border">{it.description}</td>
                   <td className="p-2 border text-center">{it.quantity}</td>
-                  <td className="p-2 border text-right">
-                    {currency(it.rate)}
-                  </td>
-                  <td className="p-2 border text-right">
-                    {currency(it.quantity * it.rate)}
-                  </td>
+                  <td className="p-2 border text-right">{currency(it.rate)}</td>
+                  <td className="p-2 border text-right">{currency(it.quantity * it.rate)}</td>
                 </tr>
               ))}
             </tbody>
@@ -89,14 +80,12 @@ export default function InvoicePreview() {
         <div className="max-w-sm ml-auto mt-6 space-y-1 text-right">
           <p>Subtotal: {currency(subtotal)}</p>
           <p>Tax ({taxRate}%): {currency(tax)}</p>
-          <p className="font-bold text-lg">
-            Total: {currency(total)}
-          </p>
+          <p className="font-bold text-lg">Total: {currency(total)}</p>
         </div>
       </div>
 
-      {/* ACTIONS */}
-      <div className="flex flex-col sm:flex-row gap-3 max-w-[210mm] mx-auto print:hidden">
+      {/* ACTIONS - ONE BUTTON EACH, always visible */}
+      <div className="flex flex-col sm:flex-row gap-3 max-w-[800px] mx-auto mt-4">
         <ExportPDF />
         <button
           onClick={() => window.print()}
@@ -105,6 +94,7 @@ export default function InvoicePreview() {
           Print
         </button>
       </div>
+
     </div>
   );
 }
