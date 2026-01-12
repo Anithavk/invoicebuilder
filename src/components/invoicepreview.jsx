@@ -94,7 +94,6 @@ export default function InvoicePreview() {
           Print
         </button>
       </div>
-
     </div>
   );
 }
