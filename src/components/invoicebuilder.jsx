@@ -21,6 +21,10 @@ const InvoiceBuilder = () => {
       field === "description" ? value : Number(value) || 0;
     setItems(updated);
   };
+ const clearInvoice = () => {
+  localStorage.removeItem("invoice-data");
+  window.location.reload();
+};
 
   const addItem = () =>
     setItems([...items, { description: "", quantity: 1, rate: 0 }]);
@@ -40,11 +44,18 @@ const InvoiceBuilder = () => {
     <div className="min-h-screen bg-gray-100">
 
       {/* HEADER */}
-      <header className="bg-white shadow p-4 text-center">
-        <h1 className="text-2xl font-bold text-blue-700">
-          Invoice Builder
-        </h1>
-      </header>
+     <header className="bg-white shadow p-4 flex justify-between items-center">
+  <h1 className="text-2xl font-bold text-blue-700">
+    Invoice Builder
+  </h1>
+
+  <button
+    onClick={clearInvoice}
+    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+  >
+    New Invoice
+  </button>
+</header>
 
       {/* MAIN */}
       <main className="max-w-4xl mx-auto p-4 space-y-6">
