@@ -10,31 +10,21 @@ const currency = (n) =>
 
 export default function InvoicePreview() {
   const { clientInfo, items, taxRate, subtotal } = useInvoiceContext();
-  const ref = useRef(null);
-    const handlePrint = () => {
-    window.print();
-  };
+  const invoiceRef = useRef(null);
 
-  // Correct tax calculation
+  const handlePrint = () => window.print();
+
   const tax = +(subtotal * (taxRate / 100)).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
 
   return (
     <div className="space-y-6 p-4 bg-gray-100 min-h-screen">
-
-      {/* INVOICE PREVIEW */}
+      
+      {/* INVOICE */}
       <div
-        ref={ref}
+        ref={invoiceRef}
         id="invoice-pdf"
-        className="
-          bg-white
-          p-6
-          rounded-lg
-          shadow-md
-          mx-auto
-          w-full
-          max-w-[800px]
-        "
+        className="bg-white p-6 rounded-lg shadow-md mx-auto w-full max-w-[800px]"
       >
         <h2 className="text-xl font-bold mb-6 text-gray-800">
           Invoice Preview
@@ -55,7 +45,7 @@ export default function InvoicePreview() {
           </div>
         </div>
 
-        {/* ITEMS TABLE */}
+        {/* TABLE */}
         <div className="overflow-x-auto">
           <table className="w-full border border-gray-300 text-sm">
             <thead className="bg-gray-100">
@@ -72,27 +62,26 @@ export default function InvoicePreview() {
                   <td className="p-2 border">{it.description}</td>
                   <td className="p-2 border text-center">{it.quantity}</td>
                   <td className="p-2 border text-right">{currency(it.rate)}</td>
-                  <td className="p-2 border text-right">{currency(it.quantity * it.rate)}</td>
+                  <td className="p-2 border text-right">
+                    {currency(it.quantity * it.rate)}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* TOTALS */}
+        {/* TOTAL */}
         <div className="max-w-sm ml-auto mt-6 space-y-1 text-right">
           <p>Subtotal: {currency(subtotal)}</p>
           <p>Tax ({taxRate}%): {currency(tax)}</p>
           <p className="font-bold text-lg">Total: {currency(total)}</p>
         </div>
       </div>
-      <div className="flex gap-3 w-full max-w-sm">
-        <button
-          onClick={ExportPDF}
-          className="flex-1 bg-blue-600 text-white py-2 rounded-md"
-        >
-          Export PDF
-        </button>
+
+      {/* ACTION BUTTONS */}
+      <div className="flex gap-3 w-full max-w-sm mx-auto">
+        <ExportPDF invoiceRef={invoiceRef} />
 
         <button
           onClick={handlePrint}
@@ -101,7 +90,6 @@ export default function InvoicePreview() {
           Print
         </button>
       </div>
-
     </div>
   );
 }

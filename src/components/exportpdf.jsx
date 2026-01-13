@@ -1,27 +1,43 @@
 import html2pdf from "html2pdf.js";
 
-const exportPDF = () => {
-  const element = document.getElementById("invoice-pdf");
+export default function ExportPDF({ invoiceRef }) {
+  const exportPDF = () => {
+    if (!invoiceRef?.current) return;
 
-  if (!element) return;
+    // TEMP FIX: disable modern color parsing
+    const style = document.createElement("style");
+    style.innerHTML = `
+      * {
+        color: rgb(0,0,0) !important;
+        background-color: transparent !important;
+      }
+      table, th, td {
+        border-color: #000 !important;
+      }
+    `;
+    document.head.appendChild(style);
 
-  html2pdf()
-    .set({
-      margin: 10,
-      filename: "invoice.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    })
-    .from(element)
-    .save();
-};
+    html2pdf()
+      .from(invoiceRef.current)
+      .set({
+        margin: 10,
+        filename: "invoice.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .save()
+      .then(() => document.head.removeChild(style));
+  };
 
-export default function ExportPDF() {
   return (
     <button
       onClick={exportPDF}
-      className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      className="flex-1 bg-blue-600 text-white py-2 rounded-md"
     >
       Export PDF
     </button>
