@@ -201,12 +201,7 @@ const InvoiceBuilder = () => {
         <div className="md:col-span-2">
   <InvoicePreview />
 </div>
-
-        {/* EXPORT */}
-        
-        <div className="flex justify-end">
-          <ExportPDF />
-        </div>
+       
       </main>
     </div>
   );

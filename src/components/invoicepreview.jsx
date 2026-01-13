@@ -11,6 +11,9 @@ const currency = (n) =>
 export default function InvoicePreview() {
   const { clientInfo, items, taxRate, subtotal } = useInvoiceContext();
   const ref = useRef(null);
+    const handlePrint = () => {
+    window.print();
+  };
 
   // Correct tax calculation
   const tax = +(subtotal * (taxRate / 100)).toFixed(2);
@@ -83,17 +86,22 @@ export default function InvoicePreview() {
           <p className="font-bold text-lg">Total: {currency(total)}</p>
         </div>
       </div>
-
-      {/* ACTIONS - ONE BUTTON EACH, always visible */}
-      <div className="flex flex-col sm:flex-row gap-3 max-w-[800px] mx-auto mt-4">
-        <ExportPDF />
+      <div className="flex gap-3 w-full max-w-sm">
         <button
-          onClick={() => window.print()}
-          className="flex-1 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900"
+          onClick={ExportPDF}
+          className="flex-1 bg-blue-600 text-white py-2 rounded-md"
+        >
+          Export PDF
+        </button>
+
+        <button
+          onClick={handlePrint}
+          className="flex-1 bg-gray-800 text-white py-2 rounded-md"
         >
           Print
         </button>
       </div>
+
     </div>
   );
 }

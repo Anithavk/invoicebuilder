@@ -1,113 +1,29 @@
-import React from "react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import { useInvoiceContext } from "../context/InvoiceContext";
+import html2pdf from "html2pdf.js";
 
-const ExportPDF = () => {
-  const { clientInfo, invoiceInfo, items, taxRate } = useInvoiceContext();
+const exportPDF = () => {
+  const element = document.getElementById("invoice-pdf");
 
-  const isEmptyItem = (item) =>
-    item.description.trim() === "" ||
-    item.quantity <= 0 ||
-    item.rate <= 0;
+  if (!element) return;
 
-  const handleExport = () => {
-    const validItems = items.filter((item) => !isEmptyItem(item));
+  html2pdf()
+    .set({
+      margin: 10,
+      filename: "invoice.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    })
+    .from(element)
+    .save();
+};
 
-    if (!clientInfo.name.trim() || !clientInfo.address.trim()) {
-      alert("Please fill client information before exporting!");
-      return;
-    }
-
-    if (!invoiceInfo.number || !invoiceInfo.date) {
-      alert("Please fill invoice information before exporting!");
-      return;
-    }
-
-    if (validItems.length === 0) {
-      alert("Please add at least one valid item before exporting!");
-      return;
-    }
-
-    // ✅ FIX 1: Recalculate subtotal
-    const subtotal = validItems.reduce(
-      (sum, item) => sum + item.quantity * item.rate,
-      0
-    );
-
-    // ✅ FIX 2: Correct tax calculation
-    const tax = (subtotal * taxRate) / 100;
-    const total = subtotal + tax;
-
-    const doc = new jsPDF("p", "mm", "a4");
-
-    // Header
-    doc.setFontSize(18);
-    doc.text("Invoice", 14, 20);
-
-    // Client info
-    doc.setFontSize(12);
-    doc.text(`Client: ${clientInfo.name}`, 14, 30);
-    doc.text(clientInfo.address, 14, 36);
-
-    // Invoice info
-    doc.text(`Invoice #: ${invoiceInfo.number}`, 140, 30);
-    doc.text(`Date: ${invoiceInfo.date}`, 140, 36);
-
-    // Items table
-    doc.autoTable({
-      startY: 50,
-      head: [["Description", "Qty", "Rate", "Amount"]],
-      body: validItems.map((item) => [
-        item.description,
-        item.quantity.toString(),
-        `$${item.rate.toFixed(2)}`,
-        `$${(item.quantity * item.rate).toFixed(2)}`,
-      ]),
-      styles: { halign: "center" },
-      headStyles: { fillColor: [37, 99, 235] },
-      columnStyles: {
-        0: { halign: "left" },
-      },
-    });
-
-    // Totals
-    const finalY = doc.lastAutoTable.finalY + 10;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 14;
-
-    doc.setFontSize(12);
-    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, pageWidth - margin, finalY, {
-      align: "right",
-    });
-
-    doc.text(
-      `Tax (${taxRate}%): $${tax.toFixed(2)}`,
-      pageWidth - margin,
-      finalY + 6,
-      { align: "right" }
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text(
-      `Total: $${total.toFixed(2)}`,
-      pageWidth - margin,
-      finalY + 14,
-      { align: "right" }
-    );
-
-    doc.save("invoice.pdf");
-  };
-
+export default function ExportPDF() {
   return (
     <button
-      onClick={handleExport}
-      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      onClick={exportPDF}
+      className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
     >
       Export PDF
     </button>
   );
-};
-
-export default ExportPDF;
+}

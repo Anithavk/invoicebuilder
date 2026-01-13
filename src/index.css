@@ -91,10 +91,13 @@ footer {
   }
 }
 @media print {
-  .invoice-container {
-    width: 210mm;
-    min-height: 297mm;
-    margin: 0 auto;
+  button {
+    display: none !important;
+  }
+
+  body {
+    background: white;
   }
 }
+
 
