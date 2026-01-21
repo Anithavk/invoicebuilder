@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
-/* =========================
-   Brand Variables
-========================= */
+/* Brand Variables */
 :root {
   --brand-color: #4f46e5;
 }
+html,
+body,
+#root {
+  height: auto;
+  overflow-y: auto;
+}
 
-/* =========================
-   Base Body Styling
-========================= */
+
+/* Base Body Styling */
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background-color: #f9fafb;
@@ -17,87 +20,55 @@ body {
   margin: 0;
 }
 
-/* Ensure App Fills Full Height */
-html,
-body,
-#root {
+/* Ensure App Fills Full Height on All Devices */
+html, body, #root {
   height: 100%;
   margin: 0;
 }
 
-/* =========================
-   Footer Styling (optional)
-========================= */
+/* Footer Default Styling (if used outside Tailwind components) */
 footer {
   background: #1f2937;
   color: white;
   padding: 16px;
   text-align: center;
 }
-
-/* =========================
-   Invoice & PDF Print Styles
-========================= */
 @media print {
-
-  /* Remove background for clean PDF */
-  body {
-    background: white;
+  body * {
+    visibility: hidden;
   }
 
-  /* Hide UI-only elements */
-  header,
-  footer,
-  button,
-  .print\:hidden {
-    display: none !important;
+  #invoice-preview,
+  #invoice-preview * {
+    visibility: visible;
   }
 
-  /* Invoice container A4 sizing */
-  .invoice-container {
-    width: 210mm;
-    max-width: 210mm;
-    margin: 0 auto;
-    padding: 16mm;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
-  /* Table improvements */
-  table {
+  #invoice-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    border: 1px solid #111827;
-    padding: 6px;
-    font-size: 12px;
-  }
-
-  /* Avoid page breaks inside rows */
-  tr {
-    page-break-inside: avoid;
-  }
-
-  /* Inputs look like text in PDF */
-  input,
-  textarea {
-    border: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
   }
 }
+/* Fix html2canvas unsupported OKLCH colors */
 @media print {
-  button {
-    display: none !important;
-  }
-
-  body {
-    background: white;
+  * {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #000 !important;
   }
 }
 
-
+/* PDF export override */
+.pdf-export * {
+  color: #000 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+}
+.invoice-preview {
+  background-color: #ffffff; /* ✅ supported */
+}
+.invoice-preview {
+  display: block !important;
+  width: 800px; /* fixed width */
+}

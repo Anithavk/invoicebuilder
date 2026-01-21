@@ -1,41 +1,36 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const InvoiceContext = createContext();
-
-const STORAGE_KEY = "invoice-data";
+export const useInvoiceContext = () => useContext(InvoiceContext);
 
 export const InvoiceProvider = ({ children }) => {
-  const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-
-  const [clientInfo, setClientInfo] = useState(
-    savedData.clientInfo || { name: "", address: "" }
-  );
-
-  const [invoiceInfo, setInvoiceInfo] = useState(
-    savedData.invoiceInfo || { number: "", date: "" }
-  );
-
-  const [items, setItems] = useState(
-    savedData.items || [{ description: "", quantity: 1, rate: 0 }]
-  );
-
-  const [taxRate, setTaxRate] = useState(savedData.taxRate ?? 0);
+  const [clientInfo, setClientInfo] = useState({ name: "", address: "" });
+  const [invoiceInfo, setInvoiceInfo] = useState({ number: "", date: "" });
+  const [items, setItems] = useState([
+    { description: "", quantity: 0, rate: 0 },
+  ]);
+  const [taxRate, setTaxRate] = useState(0.1);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.rate,
     0
   );
 
-  /* 🔐 SAVE TO LOCAL STORAGE ON CHANGE */
+  useEffect(() => {
+    const saved = localStorage.getItem("invoiceData");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setClientInfo(parsed.clientInfo || { name: "", address: "" });
+      setInvoiceInfo(parsed.invoiceInfo || { number: "", date: "" });
+      setItems(parsed.items || [{ description: "", quantity: 0, rate: 0 }]);
+      setTaxRate(parsed.taxRate ?? 0.1);
+    }
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        clientInfo,
-        invoiceInfo,
-        items,
-        taxRate,
-      })
+      "invoiceData",
+      JSON.stringify({ clientInfo, invoiceInfo, items, taxRate })
     );
   }, [clientInfo, invoiceInfo, items, taxRate]);
 
@@ -57,5 +52,3 @@ export const InvoiceProvider = ({ children }) => {
     </InvoiceContext.Provider>
   );
 };
-
-export const useInvoiceContext = () => useContext(InvoiceContext);

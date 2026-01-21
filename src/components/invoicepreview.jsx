@@ -1,6 +1,8 @@
+// src/components/InvoicePreview.jsx
 import React, { useRef } from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
-import ExportPDF from "./exportpdf";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 const currency = (n) =>
   (Number(n) || 0).toLocaleString("en-US", {
@@ -9,60 +11,95 @@ const currency = (n) =>
   });
 
 export default function InvoicePreview() {
-  const { clientInfo, items, taxRate, subtotal } = useInvoiceContext();
-  const invoiceRef = useRef(null);
-
-  const handlePrint = () => window.print();
+  const { clientInfo,invoiceInfo, items, taxRate, subtotal } = useInvoiceContext();
+  const previewRef = useRef(null);
 
   const tax = +(subtotal * (taxRate / 100)).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
 
+  /* ================= PDF EXPORT (A4 SAFE) ================= */
+   const exportPDF = async () => {
+    const element = previewRef.current;
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      windowWidth: element.scrollWidth,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
+    pdf.save("invoice.pdf");
+  };
+
+  /* ================= PRINT ================= */
+  const printPreview = () => window.print();
+
   return (
-    <div className="space-y-6 p-4 bg-gray-100 min-h-screen">
+    <div className="bg-white rounded-2xl shadow p-4 md:p-6">
       
-      {/* INVOICE */}
+      {/* ===== PREVIEW AREA ===== */}
       <div
-        ref={invoiceRef}
-        id="invoice-pdf"
-        className="bg-white p-6 rounded-lg shadow-md mx-auto w-full max-w-[800px]"
+        ref={previewRef}
+        className="mx-auto max-w-[794px] text-sm print:max-w-full"
       >
-        <h2 className="text-xl font-bold mb-6 text-gray-800">
-          Invoice Preview
-        </h2>
+        <h2 className="text-xl font-bold mb-4">Invoice</h2>
 
-        {/* HEADER */}
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-6 mb-6">
+        {/* Header */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <p className="font-semibold">From:</p>
-            <p>Your Company Name</p>
-            <p>123 Main St, City, Country</p>
+            <p className="font-semibold">From</p>
+            <p>Company Name</p>
+            <p>Addressn</p>
           </div>
-
           <div>
-            <p className="font-semibold">Bill To:</p>
-            <p>{clientInfo.name || "—"}</p>
-            <p>{clientInfo.address || "—"}</p>
+            <p className="font-semibold">Bill To</p>
+            <p>{clientInfo.name}</p>
+            <p>{clientInfo.address}</p>
           </div>
         </div>
 
-        {/* TABLE */}
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300 text-sm">
+        {/* Items Table */}
+        <div className="overflow-x-auto print:overflow-visible">
+          <table className="w-full border border-collapse text-xs sm:text-sm">
             <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border text-left">Description</th>
-                <th className="p-2 border w-16">Qty</th>
-                <th className="p-2 border w-28">Rate</th>
-                <th className="p-2 border w-32">Amount</th>
-              </tr>
-            </thead>
+  <tr>
+    <th className="border p-2 text-left w-1/2">Description</th>
+    <th className="border p-2 text-center w-12">Qty</th>
+    <th className="border p-2 text-right w-20">Rate</th>
+    <th className="border p-2 text-right w-24">Amount</th>
+  </tr>
+</thead>
+
             <tbody>
               {items.map((it, i) => (
-                <tr key={i}>
-                  <td className="p-2 border">{it.description}</td>
-                  <td className="p-2 border text-center">{it.quantity}</td>
-                  <td className="p-2 border text-right">{currency(it.rate)}</td>
-                  <td className="p-2 border text-right">
+                <tr key={i}>                
+                  <td className="border p-2 break-words whitespace-normal max-w-[180px]">{it.description || "-"}</td>
+                  <td className="border p-2 text-center">{it.quantity}</td>
+                  <td className="border p-2 text-right">
+                    {currency(it.rate)}
+                  </td>
+                  <td className="border p-2 text-right">
                     {currency(it.quantity * it.rate)}
                   </td>
                 </tr>
@@ -71,21 +108,26 @@ export default function InvoicePreview() {
           </table>
         </div>
 
-        {/* TOTAL */}
-        <div className="max-w-sm ml-auto mt-6 space-y-1 text-right">
+        {/* Totals */}
+        <div className="mt-4 text-right space-y-1">
           <p>Subtotal: {currency(subtotal)}</p>
           <p>Tax ({taxRate}%): {currency(tax)}</p>
           <p className="font-bold text-lg">Total: {currency(total)}</p>
         </div>
       </div>
 
-      {/* ACTION BUTTONS */}
-      <div className="flex gap-3 w-full max-w-sm mx-auto">
-        <ExportPDF invoiceRef={invoiceRef} />
+      {/* ===== ACTIONS (NO PRINT) ===== */}
+      <div className="no-print flex flex-col sm:flex-row gap-3 mt-6">
+        <button
+          onClick={exportPDF}
+          className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          Export PDF
+        </button>
 
         <button
-          onClick={handlePrint}
-          className="flex-1 bg-gray-800 text-white py-2 rounded-md"
+          onClick={printPreview}
+          className="flex-1 bg-gray-800 text-white py-2 rounded hover:bg-gray-900"
         >
           Print
         </button>

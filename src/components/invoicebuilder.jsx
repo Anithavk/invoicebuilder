@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
-import ExportPDF from "./exportpdf";
-import InvoicePreview from "./invoicepreview.jsx";
+import exportPDF from "./exportpdf";
 
 const InvoiceBuilder = () => {
   const {
@@ -11,208 +10,235 @@ const InvoiceBuilder = () => {
     setInvoiceInfo,
     items,
     setItems,
+    subtotal,
     taxRate,
-    setTaxRate,
   } = useInvoiceContext();
 
+  const previewRef = useRef();
+  useEffect(() => {
+    const invoiceNo = `INV-${Date.now()}`;
+    setInvoiceInfo((prev) => ({
+      ...prev,
+      number: invoiceNo,
+    }));
+  }, [setInvoiceInfo]);
+
+  // ==========================
+  // Items handling
+  // ==========================
   const handleItemChange = (i, field, value) => {
-    const updated = [...items];
-    updated[i][field] =
-      field === "description" ? value : Number(value) || 0;
-    setItems(updated);
+    const newItems = [...items];
+    newItems[i][field] = field === "description" ? value : Number(value) || 0;
+    setItems(newItems);
   };
- const clearInvoice = () => {
-  localStorage.removeItem("invoice-data");
-  window.location.reload();
-};
 
   const addItem = () =>
     setItems([...items, { description: "", quantity: 1, rate: 0 }]);
 
-  const removeItem = (i) =>
-    setItems(items.filter((_, idx) => idx !== i));
+  const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.rate,
-    0
-  );
+  const tax = +(subtotal * (taxRate / 100)).toFixed(2);
+  const total = +(subtotal + tax).toFixed(2);
 
-  const tax = (subtotal * taxRate) / 100;
-  const total = subtotal + tax;
+  const printPreview = () => window.print();
 
+  // ==========================
+  // UI
+  // ==========================
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
+      <header className="sticky top-0 z-20 bg-gray-100 shadow-sm p-4 text-center">
+        <h1 className="text-xl sm:text-3xl font-bold text-blue-700">
+          Invoice Builder
+        </h1>
+      </header>
 
-      {/* HEADER */}
-     <header className="bg-white shadow p-4 flex justify-between items-center">
-  <h1 className="text-2xl font-bold text-blue-700">
-    Invoice Builder
-  </h1>
+      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+        {/* LEFT */}
+        <div className="bg-white rounded-2xl shadow p-4 md:p-6 space-y-6">
+          {/* Client & Invoice Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h2 className="font-semibold mb-2">Client Information</h2>
+              <input
+                placeholder="Client Name"
+                value={clientInfo.name}
+                onChange={(e) =>
+                  setClientInfo({ ...clientInfo, name: e.target.value })
+                }
+                className="w-full p-2 border rounded mb-3"
+              />
+              <textarea
+                placeholder="Client Address"
+                value={clientInfo.address}
+                onChange={(e) =>
+                  setClientInfo({
+                    ...clientInfo,
+                    address: e.target.value,
+                  })
+                }
+                rows={3}
+                className="w-full p-2 border rounded"
+              />
+            </div>
 
-  <button
-    onClick={clearInvoice}
-    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-  >
-    New Invoice
-  </button>
-</header>
+            <div>
+              <h2 className="font-semibold mb-2">Invoice Information</h2>
+              <input
+                placeholder="Invoice Number"
+                value={invoiceInfo.number || ""}
+                readOnly
+                className="w-full p-2 border rounded mb-3 bg-gray-100"
+              />
 
-      {/* MAIN */}
-      <main className="max-w-4xl mx-auto p-4 space-y-6">
-
-        {/* TAX */}
-        <div className="bg-white p-4 rounded-xl shadow">
-          <label className="block font-medium mb-1">
-            Tax Rate (%)
-          </label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={taxRate}
-            onChange={(e) => setTaxRate(Number(e.target.value) || 0)}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        {/* CLIENT INFO */}
-        <div className="bg-white p-4 rounded-xl shadow space-y-4">
-          <h2 className="font-semibold text-blue-700">
-            Client Information
-          </h2>
-
-          <input
-            placeholder="Client Name"
-            value={clientInfo.name}
-            onChange={(e) =>
-              setClientInfo({ ...clientInfo, name: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          />
-
-          <textarea
-            placeholder="Client Address"
-            value={clientInfo.address}
-            onChange={(e) =>
-              setClientInfo({ ...clientInfo, address: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        {/* INVOICE INFO */}
-        <div className="bg-white p-4 rounded-xl shadow space-y-4">
-          <h2 className="font-semibold text-blue-700">
-            Invoice Information
-          </h2>
-
-          <input
-            placeholder="Invoice Number"
-            value={invoiceInfo.number}
-            onChange={(e) =>
-              setInvoiceInfo({ ...invoiceInfo, number: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          />
-
-          <input
-            type="date"
-            value={invoiceInfo.date}
-            onChange={(e) =>
-              setInvoiceInfo({ ...invoiceInfo, date: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        {/* ITEMS */}
-        <div className="bg-white p-4 rounded-xl shadow space-y-3">
-          <div className="flex justify-between items-center">
-            <h2 className="font-semibold text-blue-700">
-              Items
-            </h2>
-            <button
-              onClick={addItem}
-              className="bg-blue-600 text-white px-3 py-1 rounded"
-            >
-              + Add Item
-            </button>
+              <input
+                type="date"
+                value={invoiceInfo.date || ""}
+                min={new Date().toISOString().split("T")[0]}
+                onChange={(e) =>
+                  setInvoiceInfo((prev) => ({
+                    ...prev,
+                    date: e.target.value,
+                  }))
+                }
+                className="w-full p-2 border rounded"
+              />
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border text-sm">
+          {/* Items */}
+          <div className="space-y-4">
+            {items.map((it, idx) => (
+              <div
+                key={idx}
+                className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-4 border rounded"
+              >
+                <div className="sm:col-span-2">
+                  <label className="text-sm text-gray-600 block">
+                    Description
+                  </label>
+                  <input
+                    value={it.description}
+                    onChange={(e) =>
+                      handleItemChange(idx, "description", e.target.value)
+                    }
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 block">Qty</label>
+                  <input
+                    type="number"
+                    value={it.quantity}
+                    onChange={(e) =>
+                      handleItemChange(idx, "quantity", e.target.value)
+                    }
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 block">Rate</label>
+                  <input
+                    type="number"
+                    value={it.rate}
+                    onChange={(e) =>
+                      handleItemChange(idx, "rate", e.target.value)
+                    }
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 block">Amount</label>
+                  <div className="p-2 border rounded bg-gray-50">
+                    {(it.quantity * it.rate).toFixed(2)}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => removeItem(idx)}
+                  className="bg-red-500 text-white rounded px-3 py-2 sm:self-end"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={addItem}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            + Add Item
+          </button>
+        </div>
+
+        {/* RIGHT */}
+        <div className="bg-white rounded-2xl shadow p-4 md:p-6 overflow-x-auto">
+          <div
+            ref={previewRef}
+            className="max-w-[794px] mx-auto text-sm bg-white p-4"
+          >
+            <h2 className="text-xl font-bold mb-4">Invoice Preview</h2>
+
+            <p className="font-semibold">{clientInfo.name}</p>
+            <p className="mb-2">{clientInfo.address}</p>
+            <p className="mb-2">
+              <strong>Invoice #:</strong> {invoiceInfo.number}
+            </p>
+            <p className="mb-4">
+              <strong>Date:</strong> {invoiceInfo.date}
+            </p>
+
+            <table className="w-full border mb-4">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="border p-2">Description</th>
                   <th className="border p-2">Qty</th>
                   <th className="border p-2">Rate</th>
                   <th className="border p-2">Amount</th>
-                  <th className="border p-2">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {items.map((item, i) => (
+                {items.map((it, i) => (
                   <tr key={i}>
-                    <td className="border p-1">
-                      <input
-                        className="w-full border p-1"
-                        value={item.description}
-                        onChange={(e) =>
-                          handleItemChange(i, "description", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td className="border p-1">
-                      <input
-                        type="number"
-                        className="w-full border p-1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleItemChange(i, "quantity", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td className="border p-1">
-                      <input
-                        type="number"
-                        className="w-full border p-1"
-                        value={item.rate}
-                        onChange={(e) =>
-                          handleItemChange(i, "rate", e.target.value)
-                        }
-                      />
-                    </td>
+                    <td className="border p-2">{it.description}</td>
+                    <td className="border p-2 text-center">{it.quantity}</td>
+                    <td className="border p-2 text-right">{it.rate}</td>
                     <td className="border p-2 text-right">
-                      {(item.quantity * item.rate).toFixed(2)}
-                    </td>
-                    <td className="border p-2 text-center">
-                      <button
-                        onClick={() => removeItem(i)}
-                        className="text-red-600 text-sm"
-                      >
-                        Remove
-                      </button>
+                      {(it.quantity * it.rate).toFixed(2)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
 
-          <div className="text-right space-y-1">
-            <p>Subtotal: ${subtotal.toFixed(2)}</p>
-            <p>Tax: ${tax.toFixed(2)}</p>
-            <p className="font-bold text-lg">
-              Total: ${total.toFixed(2)}
-            </p>
+            <div className="text-right space-y-1">
+              <div>Subtotal: {subtotal.toFixed(2)}</div>
+              <div>
+                Tax ({taxRate}%): {tax.toFixed(2)}
+              </div>
+              <div className="font-bold text-lg">Total: {total.toFixed(2)}</div>
+            </div>
+
+            <div className="mt-4 flex justify-center gap-2">
+              <button
+                onClick={() => exportPDF(previewRef.current)}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Export PDF
+              </button>
+              <button
+                onClick={printPreview}
+                className="bg-gray-800 text-white px-4 py-2 rounded"
+              >
+                Print
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* INVOICE PREVIEW — FULL WIDTH */}
-        <div className="md:col-span-2">
-  <InvoicePreview />
-</div>
-       
       </main>
     </div>
   );
