@@ -1,137 +1,105 @@
-// src/components/InvoicePreview.jsx
 import React, { useRef } from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
-import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
-const currency = (n) =>
-  (Number(n) || 0).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
+const InvoicePreview = () => {
+  const { clientInfo, invoiceInfo, items, taxRate, subtotal } =
+    useInvoiceContext();
 
-export default function InvoicePreview() {
-  const { clientInfo,invoiceInfo, items, taxRate, subtotal } = useInvoiceContext();
-  const previewRef = useRef(null);
+  const previewRef = useRef();
 
-  const tax = +(subtotal * (taxRate / 100)).toFixed(2);
-  const total = +(subtotal + tax).toFixed(2);
+  const tax = (subtotal * taxRate) / 100;
+  const total = subtotal + tax;
 
-  /* ================= PDF EXPORT (A4 SAFE) ================= */
-   const exportPDF = async () => {
-    const element = previewRef.current;
+  const printInvoice = () => window.print();
 
-    const canvas = await html2canvas(element, {
+  const exportPDF = async () => {
+    const canvas = await html2canvas(previewRef.current, {
       scale: 2,
       backgroundColor: "#ffffff",
-      useCORS: true,
-      windowWidth: element.scrollWidth,
+      ignoreElements: (el) => el.style?.color?.includes("oklch"),
     });
 
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
 
-    const pdfWidth = 210;
-    const pdfHeight = 297;
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const width = 210;
+    const height = (canvas.height * width) / canvas.width;
 
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-    }
-
+    pdf.addImage(imgData, "PNG", 0, 0, width, height);
     pdf.save("invoice.pdf");
   };
 
-  /* ================= PRINT ================= */
-  const printPreview = () => window.print();
-
   return (
-    <div className="bg-white rounded-2xl shadow p-4 md:p-6">
-      
-      {/* ===== PREVIEW AREA ===== */}
-      <div
-        ref={previewRef}
-        className="mx-auto max-w-[794px] text-sm print:max-w-full"
-      >
-        <h2 className="text-xl font-bold mb-4">Invoice</h2>
+    <div className="bg-white rounded-xl shadow p-6">
+      <div id="invoice-print" ref={previewRef} className="p-6 text-sm bg-white">
+        <h1 className="text-2xl font-bold mb-4">Invoice</h1>
 
-        {/* Header */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <div>
-            <p className="font-semibold">From</p>
-            <p>Company Name</p>
-            <p>Addressn</p>
-          </div>
-          <div>
-            <p className="font-semibold">Bill To</p>
-            <p>{clientInfo.name}</p>
-            <p>{clientInfo.address}</p>
-          </div>
+        <div className="mb-4">
+          <p className="font-semibold">{clientInfo.name}</p>
+          <p>{clientInfo.address}</p>
         </div>
 
-        {/* Items Table */}
-        <div className="overflow-x-auto print:overflow-visible">
-          <table className="w-full border border-collapse text-xs sm:text-sm">
-            <thead className="bg-gray-100">
-  <tr>
-    <th className="border p-2 text-left w-1/2">Description</th>
-    <th className="border p-2 text-center w-12">Qty</th>
-    <th className="border p-2 text-right w-20">Rate</th>
-    <th className="border p-2 text-right w-24">Amount</th>
-  </tr>
-</thead>
-
-            <tbody>
-              {items.map((it, i) => (
-                <tr key={i}>                
-                  <td className="border p-2 break-words whitespace-normal max-w-[180px]">{it.description || "-"}</td>
-                  <td className="border p-2 text-center">{it.quantity}</td>
-                  <td className="border p-2 text-right">
-                    {currency(it.rate)}
-                  </td>
-                  <td className="border p-2 text-right">
-                    {currency(it.quantity * it.rate)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mb-4">
+          <p>
+            <strong>Invoice #:</strong> {invoiceInfo.number}
+          </p>
+          <p>
+            <strong>Date:</strong> {invoiceInfo.date}
+          </p>
         </div>
 
-        {/* Totals */}
-        <div className="mt-4 text-right space-y-1">
-          <p>Subtotal: {currency(subtotal)}</p>
-          <p>Tax ({taxRate}%): {currency(tax)}</p>
-          <p className="font-bold text-lg">Total: {currency(total)}</p>
+        <table className="w-full border-collapse border mb-4">
+          <thead>
+            <tr>
+              <th className="border p-2 text-left">Description</th>
+              <th className="border p-2">Qty</th>
+              <th className="border p-2">Rate</th>
+              <th className="border p-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, i) => (
+              <tr key={i}>
+                <td className="border p-2">{item.description}</td>
+                <td className="border p-2 text-center">{item.quantity}</td>
+                <td className="border p-2 text-right">
+                  {item.rate.toFixed(2)}
+                </td>
+                <td className="border p-2 text-right">
+                  {(item.quantity * item.rate).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="text-right space-y-1">
+          <div>Subtotal: {subtotal.toFixed(2)}</div>
+          <div>
+            Tax ({taxRate}%): {tax.toFixed(2)}
+          </div>
+          <div className="font-bold text-lg">Total: {total.toFixed(2)}</div>
         </div>
       </div>
 
-      {/* ===== ACTIONS (NO PRINT) ===== */}
-      <div className="no-print flex flex-col sm:flex-row gap-3 mt-6">
+      <div className="flex justify-center gap-4 mt-6 no-print">
         <button
-          onClick={exportPDF}
-          className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Export PDF
-        </button>
-
-        <button
-          onClick={printPreview}
-          className="flex-1 bg-gray-800 text-white py-2 rounded hover:bg-gray-900"
+          onClick={printInvoice}
+          className="bg-gray-800 text-white px-4 py-2 rounded"
         >
           Print
+        </button>
+        <button
+          onClick={exportPDF}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Export PDF
         </button>
       </div>
     </div>
   );
-}
+};
+
+export default InvoicePreview;

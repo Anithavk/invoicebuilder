@@ -4,13 +4,15 @@ const InvoiceContext = createContext();
 export const useInvoiceContext = () => useContext(InvoiceContext);
 
 export const InvoiceProvider = ({ children }) => {
+  const generateInvoiceNumber = () =>
+  `INV-${new Date().getTime()}`;
   const [clientInfo, setClientInfo] = useState({ name: "", address: "" });
-  const [invoiceInfo, setInvoiceInfo] = useState({ number: "", date: "" });
+  const [invoiceInfo, setInvoiceInfo] = useState({ number: generateInvoiceNumber(), date: "" });
   const [items, setItems] = useState([
     { description: "", quantity: 0, rate: 0 },
   ]);
   const [taxRate, setTaxRate] = useState(0.1);
-
+  
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.rate,
     0

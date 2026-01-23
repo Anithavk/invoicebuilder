@@ -1,29 +1,96 @@
 @media print {
+  /* ===== Page setup ===== */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ===== Hide UI ===== */
+  .no-print,
+  button,
+  nav,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* ===== Invoice container ===== */
+  #invoice-preview {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 12mm;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+  }
+
+  /* ===== Typography ===== */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+
+  /* ===== Tables ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+
+  thead {
+    display: table-header-group; /* repeat header */
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+    padding: 6px 8px;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* ===== Totals section ===== */
+  .invoice-totals {
+    margin-top: 16px;
+    page-break-inside: avoid;
+  }
+
+  /* ===== Footer (optional) ===== */
+  .print-footer {
+    position: fixed;
+    bottom: 8mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #000;
+  }
   body {
     background: white;
   }
 
   .no-print {
     display: none !important;
-  }
-
-  header,
-  footer {
-    display: none !important;
-  }
-
-  #invoice-preview {
-    width: 210mm;
-    padding: 16mm;
-    margin: 0 auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  tr {
-    page-break-inside: avoid;
   }
 }

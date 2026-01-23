@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useInvoiceContext } from "../context/InvoiceContext";
-import exportPDF from "./exportpdf";
 
 const InvoiceBuilder = () => {
   const {
@@ -10,236 +9,178 @@ const InvoiceBuilder = () => {
     setInvoiceInfo,
     items,
     setItems,
-    subtotal,
     taxRate,
+    setTaxRate,
   } = useInvoiceContext();
 
-  const previewRef = useRef();
+  const [dateError, setDateError] = useState("");
+
+  /* ===== DATE HELPERS ===== */
+  const today = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString().split("T")[0];
+  })();
+
+  const maxDate = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split("T")[0];
+  })();
+
+  /* ===== AUTO INVOICE NUMBER + DEFAULT DATE ===== */
   useEffect(() => {
-    const invoiceNo = `INV-${Date.now()}`;
     setInvoiceInfo((prev) => ({
       ...prev,
-      number: invoiceNo,
+      number: prev.number || `INV-${Date.now()}`,
+      date: prev.date || today, // set default only once
     }));
-  }, [setInvoiceInfo]);
+  }, [setInvoiceInfo, today]);
 
-  // ==========================
-  // Items handling
-  // ==========================
-  const handleItemChange = (i, field, value) => {
-    const newItems = [...items];
-    newItems[i][field] = field === "description" ? value : Number(value) || 0;
-    setItems(newItems);
+  /* ===== DATE CHANGE HANDLER (HARD BLOCK) ===== */
+  const handleDateChange = (value) => {
+    if (value < today) {
+      setDateError("❌ Past dates are not allowed.");
+      return;
+    }
+
+    if (value > maxDate) {
+      setDateError("❌ Date cannot be more than 30 days ahead.");
+      return;
+    }
+
+    setDateError("");
+    setInvoiceInfo((prev) => ({
+      ...prev,
+      date: value,
+    }));
+  };
+
+  /* ===== ITEMS ===== */
+  const handleItemChange = (index, field, value) => {
+    const updated = [...items];
+    updated[index] = {
+      ...updated[index],
+      [field]: field === "description" ? value : Number(value) || 0,
+    };
+    setItems(updated);
   };
 
   const addItem = () =>
     setItems([...items, { description: "", quantity: 1, rate: 0 }]);
 
-  const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
+  const removeItem = (index) =>
+    setItems(items.filter((_, i) => i !== index));
 
-  const tax = +(subtotal * (taxRate / 100)).toFixed(2);
-  const total = +(subtotal + tax).toFixed(2);
-
-  const printPreview = () => window.print();
-
-  // ==========================
-  // UI
-  // ==========================
   return (
-    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
-      <header className="sticky top-0 z-20 bg-gray-100 shadow-sm p-4 text-center">
-        <h1 className="text-xl sm:text-3xl font-bold text-blue-700">
-          Invoice Builder
-        </h1>
-      </header>
+    <div className="bg-white rounded-xl shadow p-6 space-y-6">
+      <h2 className="text-xl font-bold">Invoice Builder</h2>
 
-      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-        {/* LEFT */}
-        <div className="bg-white rounded-2xl shadow p-4 md:p-6 space-y-6">
-          {/* Client & Invoice Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <h2 className="font-semibold mb-2">Client Information</h2>
-              <input
-                placeholder="Client Name"
-                value={clientInfo.name}
-                onChange={(e) =>
-                  setClientInfo({ ...clientInfo, name: e.target.value })
-                }
-                className="w-full p-2 border rounded mb-3"
-              />
-              <textarea
-                placeholder="Client Address"
-                value={clientInfo.address}
-                onChange={(e) =>
-                  setClientInfo({
-                    ...clientInfo,
-                    address: e.target.value,
-                  })
-                }
-                rows={3}
-                className="w-full p-2 border rounded"
-              />
-            </div>
+      {/* Client Info */}
+      <div>
+        <h3 className="font-semibold mb-2">Client Info</h3>
 
-            <div>
-              <h2 className="font-semibold mb-2">Invoice Information</h2>
-              <input
-                placeholder="Invoice Number"
-                value={invoiceInfo.number || ""}
-                readOnly
-                className="w-full p-2 border rounded mb-3 bg-gray-100"
-              />
+        <input
+          className="w-full border p-2 rounded mb-2"
+          placeholder="Client Name"
+          value={clientInfo.name}
+          onChange={(e) =>
+            setClientInfo({ ...clientInfo, name: e.target.value })
+          }
+        />
 
-              <input
-                type="date"
-                value={invoiceInfo.date || ""}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) =>
-                  setInvoiceInfo((prev) => ({
-                    ...prev,
-                    date: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded"
-              />
-            </div>
+        <textarea
+          className="w-full border p-2 rounded"
+          placeholder="Client Address"
+          rows={3}
+          value={clientInfo.address}
+          onChange={(e) =>
+            setClientInfo({ ...clientInfo, address: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Invoice Info */}
+      <div>
+        <h3 className="font-semibold mb-2">Invoice Info</h3>
+
+        <input
+          className="w-full border p-2 rounded bg-gray-100"
+          value={invoiceInfo.number}
+          readOnly
+        />
+
+        <input
+          type="date"
+          value={invoiceInfo.date}
+          min={today}          // ✅ UI BLOCK
+          max={maxDate}        // ✅ UI BLOCK
+          onChange={(e) => handleDateChange(e.target.value)} // ✅ LOGIC BLOCK
+          className="w-full p-2 border rounded"
+        />
+
+        {dateError && (
+          <p className="text-red-600 text-sm mt-1">{dateError}</p>
+        )}
+      </div>
+
+      {/* Items */}
+      <div>
+        <h3 className="font-semibold mb-2">Items</h3>
+
+        {items.map((item, i) => (
+          <div key={i} className="grid grid-cols-5 gap-2 mb-2">
+            <input
+              className="border p-2 rounded col-span-2"
+              placeholder="Description"
+              value={item.description}
+              onChange={(e) =>
+                handleItemChange(i, "description", e.target.value)
+              }
+            />
+            <input
+              type="number"
+              className="border p-2 rounded"
+              value={item.quantity}
+              onChange={(e) =>
+                handleItemChange(i, "quantity", e.target.value)
+              }
+            />
+            <input
+              type="number"
+              className="border p-2 rounded"
+              value={item.rate}
+              onChange={(e) =>
+                handleItemChange(i, "rate", e.target.value)
+              }
+            />
+            <button
+              onClick={() => removeItem(i)}
+              className="bg-red-500 text-white rounded"
+            >
+              ✕
+            </button>
           </div>
+        ))}
 
-          {/* Items */}
-          <div className="space-y-4">
-            {items.map((it, idx) => (
-              <div
-                key={idx}
-                className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-4 border rounded"
-              >
-                <div className="sm:col-span-2">
-                  <label className="text-sm text-gray-600 block">
-                    Description
-                  </label>
-                  <input
-                    value={it.description}
-                    onChange={(e) =>
-                      handleItemChange(idx, "description", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
+        <button
+          onClick={addItem}
+          className="w-full bg-blue-600 text-white py-2 rounded mt-2"
+        >
+          + Add Item
+        </button>
+      </div>
 
-                <div>
-                  <label className="text-sm text-gray-600 block">Qty</label>
-                  <input
-                    type="number"
-                    value={it.quantity}
-                    onChange={(e) =>
-                      handleItemChange(idx, "quantity", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm text-gray-600 block">Rate</label>
-                  <input
-                    type="number"
-                    value={it.rate}
-                    onChange={(e) =>
-                      handleItemChange(idx, "rate", e.target.value)
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm text-gray-600 block">Amount</label>
-                  <div className="p-2 border rounded bg-gray-50">
-                    {(it.quantity * it.rate).toFixed(2)}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => removeItem(idx)}
-                  className="bg-red-500 text-white rounded px-3 py-2 sm:self-end"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={addItem}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            + Add Item
-          </button>
-        </div>
-
-        {/* RIGHT */}
-        <div className="bg-white rounded-2xl shadow p-4 md:p-6 overflow-x-auto">
-          <div
-            ref={previewRef}
-            className="max-w-[794px] mx-auto text-sm bg-white p-4"
-          >
-            <h2 className="text-xl font-bold mb-4">Invoice Preview</h2>
-
-            <p className="font-semibold">{clientInfo.name}</p>
-            <p className="mb-2">{clientInfo.address}</p>
-            <p className="mb-2">
-              <strong>Invoice #:</strong> {invoiceInfo.number}
-            </p>
-            <p className="mb-4">
-              <strong>Date:</strong> {invoiceInfo.date}
-            </p>
-
-            <table className="w-full border mb-4">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border p-2">Description</th>
-                  <th className="border p-2">Qty</th>
-                  <th className="border p-2">Rate</th>
-                  <th className="border p-2">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((it, i) => (
-                  <tr key={i}>
-                    <td className="border p-2">{it.description}</td>
-                    <td className="border p-2 text-center">{it.quantity}</td>
-                    <td className="border p-2 text-right">{it.rate}</td>
-                    <td className="border p-2 text-right">
-                      {(it.quantity * it.rate).toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="text-right space-y-1">
-              <div>Subtotal: {subtotal.toFixed(2)}</div>
-              <div>
-                Tax ({taxRate}%): {tax.toFixed(2)}
-              </div>
-              <div className="font-bold text-lg">Total: {total.toFixed(2)}</div>
-            </div>
-
-            <div className="mt-4 flex justify-center gap-2">
-              <button
-                onClick={() => exportPDF(previewRef.current)}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Export PDF
-              </button>
-              <button
-                onClick={printPreview}
-                className="bg-gray-800 text-white px-4 py-2 rounded"
-              >
-                Print
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Tax */}
+      <div>
+        <label className="font-semibold">Tax Rate (%)</label>
+        <input
+          type="number"
+          className="w-full border p-2 rounded"
+          value={taxRate}
+          onChange={(e) => setTaxRate(Number(e.target.value) || 0)}
+        />
+      </div>
     </div>
   );
 };

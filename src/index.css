@@ -50,25 +50,79 @@ footer {
     width: 100%;
   }
 }
-/* Fix html2canvas unsupported OKLCH colors */
 @media print {
-  * {
-    color: #000 !important;
-    background-color: #fff !important;
-    border-color: #000 !important;
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-print,
+  #invoice-print * {
+    visibility: visible;
+  }
+
+  #invoice-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    padding: 20mm;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }
 
-/* PDF export override */
+/* src/index.css or global CSS file */
 .pdf-export * {
   color: #000 !important;
   background-color: #fff !important;
   border-color: #000 !important;
+  box-shadow: none !important;
 }
-.invoice-preview {
-  background-color: #ffffff; /* ✅ supported */
-}
-.invoice-preview {
+.pdf-export {
   display: block !important;
-  width: 800px; /* fixed width */
+}
+.pdf-export .grid {
+  display: block !important;
+}
+.pdf-export table {
+  table-layout: fixed;
+  width: 100%;
+}
+.pdf-export td, .pdf-export th {
+  word-break: break-word;
+}
+.pdf-export * {
+  color: #000 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+/* PDF safe overrides for html2canvas */
+.pdf-export {
+  display: block !important;
+  width: 794px !important; /* fixed width for A4 */
+  color: #000 !important;
+  background-color: #fff !important;
+  box-shadow: none !important;
+}
+
+.pdf-export * {
+  color: #000 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.pdf-export table {
+  table-layout: fixed;
+  width: 100% !important;
+}
+
+.pdf-export td,
+.pdf-export th {
+  word-break: break-word;
 }
