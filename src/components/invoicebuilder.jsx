@@ -15,12 +15,7 @@ const InvoiceBuilder = () => {
 
   const [dateError, setDateError] = useState("");
 
-  /* ===== DATE HELPERS ===== */
-  const today = (() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString().split("T")[0];
-  })();
+  const today = new Date().toISOString().split("T")[0];
 
   const maxDate = (() => {
     const d = new Date();
@@ -28,24 +23,24 @@ const InvoiceBuilder = () => {
     return d.toISOString().split("T")[0];
   })();
 
-  /* ===== AUTO INVOICE NUMBER + DEFAULT DATE ===== */
+  /* ===== AUTO INVOICE NUMBER + LOCKED DATE ===== */
   useEffect(() => {
     setInvoiceInfo((prev) => ({
       ...prev,
       number: prev.number || `INV-${Date.now()}`,
-      date: prev.date || today, // set default only once
+      date: prev.date || today, // set ONCE
     }));
   }, [setInvoiceInfo, today]);
 
-  /* ===== DATE CHANGE HANDLER (HARD BLOCK) ===== */
+  /* ===== DATE CHANGE HANDLER ===== */
   const handleDateChange = (value) => {
     if (value < today) {
-      setDateError("❌ Past dates are not allowed.");
+      setDateError("Invoice date cannot be in the past.");
       return;
     }
 
     if (value > maxDate) {
-      setDateError("❌ Date cannot be more than 30 days ahead.");
+      setDateError("Invoice date cannot be more than 30 days in the future.");
       return;
     }
 
@@ -113,10 +108,11 @@ const InvoiceBuilder = () => {
         <input
           type="date"
           value={invoiceInfo.date}
-          min={today}          // ✅ UI BLOCK
-          max={maxDate}        // ✅ UI BLOCK
-          onChange={(e) => handleDateChange(e.target.value)} // ✅ LOGIC BLOCK
-          className="w-full p-2 border rounded"
+          min={today}
+          max={maxDate}
+          disabled={!!invoiceInfo.date} // 🔒 locked after creation
+          onChange={(e) => handleDateChange(e.target.value)}
+          className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
         />
 
         {dateError && (
